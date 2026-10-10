@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning · hayden-gilbert.com — free learning games</title>
+  <meta name="description" content="Free, ad-free learning games and tools: learn arithmetic with the Arithmetic Gang (addition, subtraction, multiplication and division), practise geometry formulas with Basic Geometry and learn to read the Thai script with Learn Thai. No sign-up needed." />
+  <meta name="theme-color" content="#14243d" />
+  <link rel="canonical" href="https://learning.hayden-gilbert.com/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Learning · hayden-gilbert.com" />
+  <meta property="og:description" content="Free, ad-free learning games: arithmetic, geometry formulas and the Thai script. No sign-up." />
+  <meta property="og:url" content="https://learning.hayden-gilbert.com/" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="/" aria-current="page">
+        <span class="brand-title">Learning</span>
+        <span class="brand-sub">hayden-gilbert.com</span>
+      </a>
+      <nav aria-label="Main" class="site-nav">
+        <a href="/" class="active" aria-current="page">Home</a>
+        <a href="https://learn-thai.hayden-gilbert.com/">Learn Thai</a>
+        <a href="/maths/">Arithmetic Gang</a>
+        <a href="#math">Math Games</a>
+        <a href="#all-games">Other Games</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <!-- ───────────── Hero ───────────── -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <p class="eyebrow">Free · No sign-up · No ads</p>
+          <h1>Learn something new, one game at a time.</h1>
+          <p class="lead">
+            Short, focused games and tools for students, parents, teachers and anyone who wants to practise. Mistakes are explained,
+            weak spots come back more often, and your progress stays on your own device.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="#all-games">Browse the games ↓</a>
+            <a class="btn btn-ghost-light btn-lg" href="/basic-geometry/downloads/geometry-formula-cheat-sheet.pdf" download="geometry-formula-cheat-sheet.pdf">Free geometry cheat sheet (PDF)</a>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="tile t-math">
+            <svg viewBox="0 0 120 90"><circle cx="38" cy="50" r="26" fill="#c6a8f8" stroke="#7c4fd6" stroke-width="3"/><rect x="62" y="16" width="40" height="40" rx="3" fill="#5b9df9" stroke="#2563c9" stroke-width="3"/><polygon points="66,82 104,82 85,56" fill="#f27ba1" stroke="#c43c6c" stroke-width="3" stroke-linejoin="round"/></svg>
+            <span>A = πr²</span>
+          </div>
+          <div class="tile t-thai">
+            <span class="thai-glyph" lang="th">ก</span>
+            <span>ko kai</span>
+          </div>
+          <div class="tile t-next">
+            <span class="plus">+</span>
+            <span>More soon</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Your progress (filled in by home.js if this browser has played) ───────────── -->
+    <section class="container continue" id="continue" hidden aria-labelledby="continue-h">
+      <div class="card continue-card">
+        <div>
+          <h2 id="continue-h">Welcome back</h2>
+          <p id="continue-text" class="muted"></p>
+        </div>
+        <div class="continue-actions" id="continue-actions"></div>
+      </div>
+    </section>
+
+    <!-- ───────────── Games ───────────── -->
+    <section class="container section" id="all-games" aria-labelledby="games-h">
+      <div class="section-head">
+        <h2 id="games-h">Games &amp; resources</h2>
+        <p class="muted">Pick a subject. Everything works in the browser on a computer, tablet or phone.</p>
+      </div>
+
+      <!--
+        HOW TO ADD A GAME: copy one <article class="game-card"> block into the right subject group
+        (or copy a whole <div class="subject"> for a new subject), change the text, colours and links.
+        Each game lives in its own folder (e.g. /fractions/) or subdomain and links back here.
+      -->
+
+      <div class="subject" id="math">
+        <h3 class="subject-title"><span class="subject-dot dot-math" aria-hidden="true"></span> Math games</h3>
+        <article class="card game-card gang-home-card">
+          <div class="game-art art-gang" aria-hidden="true">
+            <img src="/maths/assets/gang/group.webp" alt="" width="724" height="383" loading="lazy" decoding="async" />
+          </div>
+          <div class="game-body">
+            <p class="tag tag-gang">Arithmetic · Ages 6–12</p>
+            <h4>Meet the Arithmetic Gang</h4>
+            <p>
+              Addition, subtraction, multiplication and division, taught step by step by <strong>Andy</strong>, <strong>Susy</strong>,
+              <strong>Mandy</strong> and <strong>Danny</strong>. Learn the method, practise together, then show what you know.
+            </p>
+            <ul class="features">
+              <li>Carrying, borrowing and long multiplication</li>
+              <li>Long division, remainders and decimals</li>
+              <li>Times-table check and practice</li>
+              <li>Hints that get more helpful as you need them</li>
+            </ul>
+            <div class="game-actions gang-actions">
+              <a class="btn btn-primary" href="/maths/">Meet the Gang</a>
+              <a class="btn gang-btn g-andy" href="/addition/">Let’s Add!</a>
+              <a class="btn gang-btn g-susy" href="/subtraction/">Let’s Subtract!</a>
+              <a class="btn gang-btn g-mandy" href="/multiplication/">Let’s Multiply!</a>
+              <a class="btn gang-btn g-danny" href="/division/">Let’s Divide!</a>
+            </div>
+            <p class="progress-note" id="gang-progress-note" hidden></p>
+          </div>
+        </article>
+        <article class="card game-card">
+          <div class="game-art art-geometry" aria-hidden="true">
+            <svg viewBox="0 0 200 140">
+              <rect x="18" y="20" width="58" height="58" rx="3" fill="#5b9df9" stroke="#2563c9" stroke-width="3"/>
+              <circle cx="140" cy="50" r="32" fill="#c6a8f8" stroke="#7c4fd6" stroke-width="3"/>
+              <path d="M40 92 L40 122 A22 7 0 0 0 84 122 L84 92" fill="#7fb6fb" stroke="#2563c9" stroke-width="3"/>
+              <ellipse cx="62" cy="92" rx="22" ry="7" fill="#b5d4fd" stroke="#2563c9" stroke-width="3"/>
+              <path d="M146 92 L122 128 A24 7 0 0 0 170 128 Z" fill="#fcb07e" stroke="#c46a12" stroke-width="3" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="game-body">
+            <p class="tag">Geometry · Grades 7–10</p>
+            <h4>Basic Geometry</h4>
+            <p>
+              Learn the formulas for area, perimeter, circumference, volume and surface area. Match shapes to formulas in
+              <strong>Pick a Pair</strong>, see why each wrong answer was wrong, and revisit the ones you find hardest.
+            </p>
+            <ul class="features">
+              <li>3 levels and 6 practice modes</li>
+              <li>Step-by-step formula calculator</li>
+              <li>Metric units and area conversion</li>
+              <li>Free printable cheat sheet</li>
+            </ul>
+            <div class="game-actions">
+              <a class="btn btn-primary" href="/basic-geometry/play">Play Pick a Pair</a>
+              <a class="btn btn-secondary" href="/basic-geometry/">Explore</a>
+              <a class="btn btn-secondary" href="/basic-geometry/calculator">Calculator</a>
+              <a class="btn btn-secondary" href="/basic-geometry/formulas">Formulas</a>
+            </div>
+            <p class="progress-note" id="geo-progress" hidden></p>
+          </div>
+        </article>
+      </div>
+
+      <div class="subject" id="languages">
+        <h3 class="subject-title"><span class="subject-dot dot-lang" aria-hidden="true"></span> Language games</h3>
+        <article class="card game-card">
+          <div class="game-art art-thai" aria-hidden="true">
+            <span lang="th">ก ข ค</span>
+          </div>
+          <div class="game-body">
+            <p class="tag">Thai script · Beginners</p>
+            <h4>Learn Thai</h4>
+            <p>
+              Learn to read and write the Thai script with fast, arcade-style practice. Start with the 44 consonants in
+              <strong>Thai Missile Defence</strong> — name each letter before it reaches Bangkok — with words and handwriting to follow.
+            </p>
+            <ul class="features">
+              <li>30 levels covering all 44 consonants</li>
+              <li>Review after every level</li>
+              <li>Missed letters come back more often</li>
+              <li>Words and writing practice in development</li>
+            </ul>
+            <div class="game-actions">
+              <a class="btn btn-primary" href="https://learn-thai.hayden-gilbert.com/">Play Learn Thai</a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="subject">
+        <h3 class="subject-title"><span class="subject-dot dot-next" aria-hidden="true"></span> Coming next</h3>
+        <article class="card soon-card">
+          <p><strong>More games are on the way.</strong> New subjects will appear here as they’re ready — each one free and without sign-up.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────── How it works ───────────── -->
+    <section class="container section" aria-labelledby="how-h">
+      <h2 id="how-h">How these games work</h2>
+      <div class="how-grid">
+        <div class="card how">
+          <span class="how-icon" aria-hidden="true">🎯</span>
+          <h3>Learn from mistakes</h3>
+          <p>The games show you the right answer when you slip up, so you understand it rather than just guessing.</p>
+        </div>
+        <div class="card how">
+          <span class="how-icon" aria-hidden="true">🔁</span>
+          <h3>Practise what’s hard</h3>
+          <p>The things you miss come back more often, so practice time goes where it’s needed most.</p>
+        </div>
+        <div class="card how">
+          <span class="how-icon" aria-hidden="true">🔒</span>
+          <h3>Private by design</h3>
+          <p>No accounts, ads or tracking. Progress is kept only in your browser on this device. Basic Geometry and the Arithmetic Gang have Reset progress buttons for shared computers.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p><strong>Learning · hayden-gilbert.com</strong> — free learning games and tools. No sign-up, no tracking, no ads.</p>
+      <nav aria-label="Footer">
+        <a href="/maths/">The Arithmetic Gang</a>
+        <a href="/basic-geometry/">Basic Geometry</a>
+        <a href="https://learn-thai.hayden-gilbert.com/">Learn Thai</a>
+        <a href="/basic-geometry/downloads/geometry-formula-cheat-sheet.pdf" download="geometry-formula-cheat-sheet.pdf">Geometry cheat sheet</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="/home.js" defer></script>
+</body>
+</html>

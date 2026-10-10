@@ -1,0 +1,61 @@
+/* Arithmetic Gang launch page. Builds on /styles.css. */
+.gang-page { --andy: #178246; --susy: #7c4fd6; --mandy: #c81e6c; --danny: #2563eb; background: #fffaf2; }
+.gang-hero { position: relative; overflow: hidden; background: radial-gradient(700px 380px at 15% 10%, #fff3c4 0%, transparent 60%), radial-gradient(800px 420px at 90% 0%, #dff0ff 0%, transparent 60%), radial-gradient(600px 400px at 70% 100%, #ffe3f0 0%, transparent 60%), #fffaf2; padding: calc(var(--space) * 1.6) 0 calc(var(--space) * 1.2); }
+.symbols span { position: absolute; font-weight: 900; line-height: 1; opacity: .13; user-select: none; }
+.symbols .s1 { left: 4%; top: 12%; font-size: 6rem; color: var(--andy); transform: rotate(-12deg); }
+.symbols .s2 { left: 44%; top: 4%; font-size: 5rem; color: var(--susy); }
+.symbols .s3 { right: 6%; top: 8%; font-size: 6rem; color: var(--mandy); transform: rotate(10deg); }
+.symbols .s4 { right: 2%; bottom: 10%; font-size: 5.5rem; color: var(--danny); }
+.symbols .s5 { left: 2%; bottom: 6%; font-size: 4.5rem; color: #e0a100; }
+.symbols .s6 { left: 36%; bottom: 4%; font-size: 3.5rem; color: var(--danny); transform: rotate(14deg); }
+.symbols .s7 { left: 22%; top: 52%; font-size: 3rem; color: var(--susy); }
+.gang-hero-inner { position: relative; display: grid; grid-template-columns: 1fr 1.15fr; gap: var(--space); align-items: center; }
+.gang-hero-inner > * { min-width: 0; }
+.gang-hero .eyebrow { text-transform: uppercase; letter-spacing: .1em; font-size: .8rem; font-weight: 800; color: #b26b00; margin-bottom: 8px; }
+.gang-hero h1 { font-size: clamp(2.3rem, 1.6rem + 3.4vw, 4rem); line-height: 1.02; color: var(--navy); margin-bottom: 14px; }
+.gang-hero h1 span { display: block; background: linear-gradient(90deg, var(--andy), var(--susy) 35%, var(--mandy) 65%, var(--danny)); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: .08em; }
+.gang-hero .lead { font-size: clamp(1.05rem, 1rem + .3vw, 1.25rem); color: var(--ink-2); max-width: 46ch; }
+.btn-gang { background: var(--navy); color: #fff; box-shadow: 0 3px 0 #0b1526; }
+.btn-gang:hover { background: var(--navy-2); }
+.gang-group { margin: 0; }
+.gang-group img { width: 100%; height: auto; display: block; filter: drop-shadow(0 14px 18px rgba(20, 32, 51, .18)); }
+.nameplates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: -6px; position: relative; }
+.nameplates span { justify-self: center; font-weight: 800; color: #fff; padding: 4px 12px; border-radius: 99px; font-size: clamp(.8rem, .7rem + .4vw, 1rem); box-shadow: 0 2px 0 rgba(0,0,0,.15); white-space: nowrap; }
+.nameplates small { font-size: 1em; opacity: .85; margin-left: 2px; }
+.np-andy { background: var(--andy); } .np-susy { background: var(--susy); } .np-mandy { background: var(--mandy); } .np-danny { background: var(--danny); }
+
+.section-title { text-align: center; margin: calc(var(--space) * 1.6) 0 18px; color: var(--navy); }
+.gang-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.gang-card { --c: var(--navy); display: flex; flex-direction: column; background: #fff; border-radius: 24px; overflow: hidden; border: 2px solid color-mix(in srgb, var(--c) 22%, #fff); box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s; }
+.gang-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.c-andy { --c: var(--andy); } .c-susy { --c: var(--susy); } .c-mandy { --c: var(--mandy); } .c-danny { --c: var(--danny); }
+.gc-art { position: relative; display: grid; place-items: end center; height: 190px; background: radial-gradient(circle at 50% 80%, color-mix(in srgb, var(--c) 22%, #fff) 0%, color-mix(in srgb, var(--c) 8%, #fff) 70%); padding-top: 10px; }
+.gc-art img { height: 180px; width: auto; display: block; }
+.gc-sym { position: absolute; top: 12px; right: 14px; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; font-size: 2rem; font-weight: 900; line-height: 1; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
+.gc-body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 18px; flex: 1; }
+.gc-body h3 { font-size: 1.3rem; margin: 0; color: var(--c); }
+.gc-body p { margin: 0; color: var(--ink-2); }
+.gc-tag { font-size: .75rem !important; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--c) !important; }
+.gc-progress { font-size: .88rem; font-weight: 700; color: var(--green) !important; }
+.gc-btn { margin-top: auto; background: var(--c); color: #fff; font-size: 1.08rem; min-height: 50px; box-shadow: 0 3px 0 color-mix(in srgb, var(--c) 70%, #000); }
+.gc-btn:hover { filter: brightness(.94); }
+.gc-body .gc-progress + .gc-btn, .gc-body p + .gc-btn { margin-top: auto; }
+.gc-body > p:nth-of-type(2) { margin-bottom: 12px; }
+
+.gang-progress { margin-top: calc(var(--space) * -.4); position: relative; }
+.gp-card { background: #fff; border-radius: 20px; border: 1px solid var(--border); border-left: 6px solid var(--green); padding: 16px 20px; box-shadow: var(--shadow); }
+.gp-card h2 { font-size: 1.2rem; margin: 0 0 8px; }
+.gp-card ul { margin: 0 0 6px; padding-left: 18px; }
+.gp-card li { margin: 2px 0; }
+.gp-card .small { margin: 0; font-size: .85rem; }
+
+.how-steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.how-steps li { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow); }
+.how-steps span:last-child { color: var(--ink-2); }
+.hs-n { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--navy); margin-bottom: 4px; }
+.how-steps li:nth-child(1) .hs-n { background: #2f7bd9; } .how-steps li:nth-child(2) .hs-n { background: var(--susy); } .how-steps li:nth-child(3) .hs-n { background: var(--mandy); } .how-steps li:nth-child(4) .hs-n { background: #a76300; }
+
+@media (max-width: 1100px) { .gang-cards { grid-template-columns: repeat(2, 1fr); } .how-steps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 860px) { .gang-hero-inner { grid-template-columns: 1fr; } .gang-group { max-width: 620px; justify-self: center; width: 100%; } }
+@media (max-width: 560px) { .gang-cards, .how-steps { grid-template-columns: 1fr; } .gc-art { height: 170px; } .gc-art img { height: 160px; } .symbols span { font-size: 3rem !important; } }
+@media (prefers-reduced-motion: reduce) { .gang-card, .gang-card:hover { transition: none; transform: none; } }

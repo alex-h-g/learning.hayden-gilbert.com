@@ -1,0 +1,17 @@
+/* Mandy the Multiplier — long-multiplication board extras. */
+.mult-board { grid-template-columns: var(--opw) repeat(var(--n), var(--cw)) minmax(0, auto); }
+.mult-board .row-note { display: grid; align-items: center; padding-left: 10px; font-size: .85rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.mult-board .row-note .done { color: var(--accent-700); }
+.mult-board .cell.answer { padding-top: 6px; }
+.mult-board .slot { height: calc(var(--digit) * 1.22); line-height: 1; }
+.mult-board .slot.zero-ph { background: var(--accent2-50); border-color: var(--accent-2); color: var(--accent-2); }
+.mult-board .add-carry { min-height: 0; }
+.carry-mark.small { font-size: .8em; }
+.tables-card { margin: 4px 0 20px; }
+.tables-card h2 { margin: 0 0 6px; font-size: 1.2rem; }
+.table-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin: 12px 0; }
+.table-chip { min-height: 64px; border-radius: 14px; border: 2px solid var(--accent-100); background: #fff; font: inherit; font-weight: 800; font-size: 1.1rem; color: var(--accent-700); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 2px 0 var(--accent-100); }
+.table-chip small { font-size: .72rem; font-weight: 700; color: var(--muted); }
+.table-chip.strong { border-color: #b9e3c8; background: #f0fbf4; }
+.table-chip:active { transform: translateY(1px); }
+@media (max-width: 640px) { .mult-board .row-note { font-size: .72rem; padding-left: 4px; } }
