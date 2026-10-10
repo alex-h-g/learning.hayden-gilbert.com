@@ -71,6 +71,27 @@
     }
   }
 
+  // ── Geometry 2 (Geometry Gina) ──
+  var g2 = read('geometry-2:history:v1');
+  if (g2 && typeof g2 === 'object' && g2.skills && typeof g2.skills === 'object') {
+    var g2answered = 0, g2tricky = 0;
+    Object.keys(g2.skills).forEach(function (id) {
+      var s = g2.skills[id];
+      if (!s || typeof s !== 'object' || typeof s.attempted !== 'number' || s.attempted <= 0) return;
+      g2answered += s.attempted;
+      var recent = Array.isArray(s.recent) ? s.recent.slice(-4) : [];
+      if (recent.some(function (r) { return r === 0; }) || (typeof s.firstTry === 'number' && s.firstTry / s.attempted < 0.6)) g2tricky += 1;
+    });
+    if (g2answered > 0) {
+      summaries.push('With Geometry Gina you’ve answered ' + plural(g2answered, 'question') +
+        (g2tricky ? ', and ' + plural(g2tricky, 'topic') + ' could use a little more practice.' : '.'));
+      buttons.push(link('/geometry-2/', 'Carry on with Gina', 'btn-primary'));
+      if (g2tricky) buttons.push(link('/geometry-2/practice?mode=mistakes', 'Practise with Gina', 'btn-secondary'));
+      var g2Note = document.getElementById('geo2-progress');
+      if (g2Note) { g2Note.textContent = '✓ You’ve played this game in this browser — ' + plural(g2answered, 'question') + ' answered.'; g2Note.hidden = false; }
+    }
+  }
+
   if (!summaries.length) return;
   var section = document.getElementById('continue');
   var text = document.getElementById('continue-text');

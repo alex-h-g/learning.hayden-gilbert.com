@@ -21,6 +21,7 @@ public_html/          ← exactly what goes on the server (deploy the CONTENTS i
   multiplication/     Mandy the Multiplier (7 levels + times-table check/practice) pink #c81e6c
   division/           Danny the Divisor   (10 levels)  blue   #2563eb
 basic-geometry/       Basic Geometry SOURCE (Vite/React/TS, Vitest tests, own README)
+geometry-2/           Geometry 2 with Geometry Gina SOURCE (Vite/React/TS, own README); built output in public_html/geometry-2/
 tests/                Arithmetic Gang node unit tests + Playwright e2e
 docs/                 DEPLOY.md, original specs (spec-1 Susy, spec-2 Arithmetic Gang)
 design/               source mockups and pose sheets (not deployed)
@@ -111,6 +112,21 @@ See `docs/DEPLOY.md`. `public_html/` is now a full copy of the site: zip its con
 - **Design:** navy header with "Learning / hayden-gilbert.com" and nav Home `/` · Learn Thai (subdomain) · Math Games `/#math` · Other Games `/#all-games`. White cards and blue actions. Links live in `src/lib/paths.ts` and `src/components/Layout.tsx`.
 - **`.htaccess`:** wrap any `Header` rule in `<IfModule mod_headers.c>`. An unguarded one gives a 500 on hosts without that module. Dotfiles are hidden in Finder and plain `ls`, so Alex may not see them: give the file's text when asked, and check with `unzip -l` or `ls -A`.
 - **Open idea (undecided):** a multi-match mechanic, where 2–3 right-hand formula cards can match one left-hand card.
+
+## Geometry 2 (Geometry Gina) — built
+
+Source `geometry-2/`, output `public_html/geometry-2/`, storage key `geometry-2:history:v1` (home.js reads `skills`). Read `geometry-2/README.md` first. Workflow:
+
+```
+cd geometry-2 && npm install && npm test && npm run build
+rm -rf ../public_html/geometry-2 && mkdir ../public_html/geometry-2 && cp -R dist/. ../public_html/geometry-2/
+cd .. && python3 tests/serve_site.py 8766 & python3 tests/e2e_geometry2.py http://127.0.0.1:8766 /tmp/g2shots
+```
+
+- Source worksheet: `design/worksheets/geometry-2-revision-worksheet.docx`. Its numbers are used **only** for each lesson's worked example; every other question is generated fresh.
+- Alex's rules from the build: every answer must be right (tests include an independent recomputation and KaTeX strict rendering); whole-number answers at warm-up/standard level; units scope is single-step mass conversions (×/÷ 1000) and small lengths (nm, μm) to metres in standard form, not general order-of-magnitude conversions; weak skills come up more often (mistakes + mixed exam weighting); the Unit converter page is wanted.
+- Worksheet Q4's diagram is wrong (110° drawn where 70° must be). The app uses correct values; don't "fix" it back.
+- Gina's nine poses: `waving, thinking, explaining, curious, encouraging, celebrating, cheering, reassuring, neutral` (note: `explaining`, not the Gang's `pointing`).
 
 ## Adding Geometry 2 (or other React geometry games)
 

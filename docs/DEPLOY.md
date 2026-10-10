@@ -1,3 +1,13 @@
+# Geometry 2 with Geometry Gina — deploy (added October 2026)
+
+| Path (in `public_html/`) | Status |
+|---|---|
+| `geometry-2/` | **New.** Built app, including hidden `geometry-2/.htaccess` and `404.html`. |
+| `index.html` | **Replaces.** Adds the Geometry 2 card under Math games and a footer link; `home.js?v=3`. |
+| `home.js` | **Replaces.** "Welcome back" also summarises Geometry 2. |
+
+Steps: back up `index.html` and `home.js`; upload the contents of `public_html/` (or just `geometry-2/`, `index.html`, `home.js`) and extract, overwriting; check `/geometry-2/`, `/geometry-2/lesson/compound` (direct load), `/geometry-2/converter` and the homepage; flush SiteGround cache. `styles.css` is unchanged.
+
 # The Arithmetic Gang — deploy to learning.hayden-gilbert.com (SiteGround)
 
 Static HTML/CSS/JS. No build step, no server code, no external services, no accounts.
