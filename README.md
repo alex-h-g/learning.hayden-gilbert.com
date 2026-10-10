@@ -13,12 +13,11 @@ Free, ad-free learning games. Static HTML/CSS/JS hosted on SiteGround; no build 
 | `public_html/multiplication/` | Mandy the Multiplier: times-table check & practice, 7 levels of long multiplication. |
 | `public_html/division/` | Danny the Divisor: 10 levels, long division, remainders, decimals. |
 | `public_html/basic-geometry/` | **Basic Geometry** — built output (do not edit by hand). Pick a Pair, calculator, formula reference, progress, cheat-sheet PDF, `.htaccess`. |
+| `public_html/favicon.svg` | Site favicon. |
 | `basic-geometry/` | Basic Geometry **source** (Vite + React + TypeScript). Has its own README and tests. |
 | `tests/` | Engine, curriculum and browser tests. |
 | `docs/` | `DEPLOY.md` plus the two original build specs. |
 | `design/` | Original mockups and character pose sheets (source artwork). |
-
-> Note: `favicon.svg` (site root) lives on the server but isn't in this repo yet.
 
 ## Basic Geometry
 
