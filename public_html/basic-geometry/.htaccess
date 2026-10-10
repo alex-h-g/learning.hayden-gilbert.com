@@ -1,0 +1,14 @@
+# Apache: serve the SPA for unknown paths under /basic-geometry/
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /basic-geometry/
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^ index.html [L]
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.pdf$">
+    Header set Content-Disposition "attachment; filename=geometry-formula-cheat-sheet.pdf"
+  </FilesMatch>
+</IfModule>
