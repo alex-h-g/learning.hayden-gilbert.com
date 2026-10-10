@@ -12,11 +12,27 @@ Free, ad-free learning games. Static HTML/CSS/JS hosted on SiteGround; no build 
 | `public_html/subtraction/` | Susy the Subtractor: 14 levels, borrowing across zeros. |
 | `public_html/multiplication/` | Mandy the Multiplier: times-table check & practice, 7 levels of long multiplication. |
 | `public_html/division/` | Danny the Divisor: 10 levels, long division, remainders, decimals. |
+| `public_html/basic-geometry/` | **Basic Geometry** — built output (do not edit by hand). Pick a Pair, calculator, formula reference, progress, cheat-sheet PDF, `.htaccess`. |
+| `basic-geometry/` | Basic Geometry **source** (Vite + React + TypeScript). Has its own README and tests. |
 | `tests/` | Engine, curriculum and browser tests. |
 | `docs/` | `DEPLOY.md` plus the two original build specs. |
 | `design/` | Original mockups and character pose sheets (source artwork). |
 
-> Note: `public_html/` currently holds the homepage and the Arithmetic Gang. Basic Geometry (`/basic-geometry/`) and `favicon.svg` live on the server but aren't in this repo yet. Add them from SiteGround so the repo becomes a full copy of the site.
+> Note: `favicon.svg` (site root) lives on the server but isn't in this repo yet.
+
+## Basic Geometry
+
+Unlike the other games, Basic Geometry has a build step. Edit `basic-geometry/`, then rebuild and copy the output into `public_html/basic-geometry/`:
+
+```
+cd basic-geometry
+npm install
+npm test
+npm run build
+rm -rf ../public_html/basic-geometry && mkdir ../public_html/basic-geometry && cp -R dist/. ../public_html/basic-geometry/
+```
+
+Upload `public_html/basic-geometry/` (including the hidden `.htaccess`) to SiteGround's `public_html/basic-geometry/`.
 
 ## Each subject
 
