@@ -100,3 +100,21 @@ See `docs/DEPLOY.md`. `public_html/` is now a full copy of the site: zip its con
 - Prefers exact copy-paste terminal commands with no extra explanation, and ready-to-drop-in replacement files over manual edit instructions.
 - British spelling in learner-facing text (practise/practice, colour, maths).
 - New learning games follow the same pattern: own folder under `public_html/`, a card on the homepage, link back to `/`.
+
+## Basic Geometry: notes from the build project
+
+- **Audience:** a public resource for students, parents and teachers, not built for one child. No registration, analytics, ads, cookies or third-party requests. `localStorage` only.
+- **Spec:** 26 formulas across 13 shapes. Pick a Pair game: 3 levels × 4 pairs, plus 6 practice modes, including Practise My Mistakes. Also an end-of-round review, a calculator with metric units, an area-unit converter, a formula reference and a progress dashboard. Routes: `/play`, `/calculator`, `/formulas`, `/progress`, each pre-rendered as a real `index.html` by `scripts/postbuild.mjs`. `BASE_PATH` overrides `/basic-geometry/`.
+- **Reset progress is required.** Kids share one computer. There is a "Sharing this computer?" card on the Pick a Pair menu (with a confirmation dialog), plus "Clear saved history" on Progress. Keep both in any rework.
+- **Notation must be unambiguous.** Alex has advanced maths credentials and pointed out that `P = 2a + 2b` is valid for a rectangle, and `4w` for a square, if the letters are undefined. So every question card shows a large labelled diagram using only that formula's letters. Feedback flags a chosen formula whose letters aren't on the diagram, and the review shows side-by-side labelled diagrams. Never show a formula whose variables aren't defined on screen.
+- **Cheat sheet:** `public/downloads/geometry-formula-cheat-sheet.pdf` is Alex's own PDF. Serve it as-is; never regenerate or edit it. The homepage card labels it Grades 7–10, taken from the cheat sheet.
+- **Design:** navy header with "Learning / hayden-gilbert.com" and nav Home `/` · Learn Thai (subdomain) · Math Games `/#math` · Other Games `/#all-games`. White cards and blue actions. Links live in `src/lib/paths.ts` and `src/components/Layout.tsx`.
+- **`.htaccess`:** wrap any `Header` rule in `<IfModule mod_headers.c>`. An unguarded one gives a 500 on hosts without that module. Dotfiles are hidden in Finder and plain `ls`, so Alex may not see them: give the file's text when asked, and check with `unzip -l` or `ls -A`.
+- **Open idea (undecided):** a multi-match mechanic, where 2–3 right-hand formula cards can match one left-hand card.
+
+## Adding Geometry 2 (or other React geometry games)
+
+- Use its own folders: source in `geometry-2/` and built output in `public_html/geometry-2/`, with its own `BASE_PATH`, `.htaccess`, `404.html` and a storage key such as `geometry-2:history:v1`. Never write into `basic-geometry/` or the Arithmetic Gang folders, and never share their storage keys.
+- Reuse Basic Geometry by copying from it (formula data, diagrams, Layout/header, postbuild), not by importing across folders, so each app builds on its own.
+- Add a homepage card in `public_html/index.html` under the maths subject, and bump the `?v=N` versions if you touch `styles.css` or `home.js`. To show "Welcome back" for it, extend `home.js` to read the new key.
+- Keep the Basic Geometry rules: labelled diagrams for every formula, Reset progress, no tracking, British spelling.
