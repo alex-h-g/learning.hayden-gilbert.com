@@ -57,6 +57,8 @@ export function ProblemRunner({ problem, mode, onFinish, finishLabel = 'Continue
   const [phase, setPhase] = useState<'ask' | 'solved' | 'complete'>('ask');
   const [stepWrong, setStepWrong] = useState(0);
   const [stepHints, setStepHints] = useState(0);
+  // Which revealed hint is on show — learners can flip back and forth through the ones they've opened.
+  const [viewHint, setViewHint] = useState(0);
   const [done, setDone] = useState<Done[]>([]);
   const [totals, setTotals] = useState({ wrong: 0, hints: 0, revealed: false, answers: [] as string[] });
   const [pose, setPose] = useState<Pose>(mode === 'guided' ? 'explaining' : defaultPose(steps[0], mode));
@@ -115,9 +117,17 @@ export function ProblemRunner({ problem, mode, onFinish, finishLabel = 'Continue
     }
   };
 
+  /** Opens a new hint (counts as help). */
   const showHint = (n: number) => {
     setStepHints(n);
+    setViewHint(n);
     setTotals((t) => ({ ...t, hints: t.hints + 1 }));
+    setPose('thinking');
+    setBubble(`**Hint ${n} of ${step.hints.length}:** ${step.hints[n - 1]}`);
+  };
+  /** Revisits a hint already opened (free). */
+  const goHint = (n: number) => {
+    setViewHint(n);
     setPose('thinking');
     setBubble(`**Hint ${n} of ${step.hints.length}:** ${step.hints[n - 1]}`);
   };
@@ -137,6 +147,7 @@ export function ProblemRunner({ problem, mode, onFinish, finishLabel = 'Continue
     if (w === 2 && stepHints < step.hints.length) {
       const n = stepHints + 1;
       setStepHints(n);
+      setViewHint(n);
       setTotals((t) => ({ ...t, hints: t.hints + 1 }));
       setBubble(`${say.wrongAgain()}\n\n**Hint ${n} of ${step.hints.length}:** ${step.hints[n - 1]}`);
     } else {
@@ -198,6 +209,7 @@ export function ProblemRunner({ problem, mode, onFinish, finishLabel = 'Continue
     setPhase('ask');
     setStepWrong(0);
     setStepHints(0);
+    setViewHint(0);
     resetInputs();
     setPose(defaultPose(n, mode));
     setBubble(n.prompt);
@@ -222,28 +234,49 @@ export function ProblemRunner({ problem, mode, onFinish, finishLabel = 'Continue
 
   const highlight = phase === 'complete' ? ['rect', 'semi', 'unknown', 'hyp', 'right-angle', 'halves'] : [...(step.highlight ?? []), ...(step.kind === 'multi' ? step.options.filter((o) => multi.has(o.id) && o.highlight).map((o) => o.highlight!) : [])];
 
+  const total = step.hints.length;
   const hintButton =
-    phase === 'ask' && step.kind !== 'widget' ? (
-      stepHints < step.hints.length ? (
-        <button type="button" className="btn btn-hint" onClick={() => showHint(stepHints + 1)}>
-          💡 Hint <span className="muted">({stepHints + 1} of {step.hints.length})</span>
-        </button>
-      ) : (
-        <button type="button" className="btn btn-hint" onClick={() => solve(true)}>
-          Show me the working
-        </button>
-      )
+    phase === 'ask' && stepHints === 0 ? (
+      <button type="button" className="btn btn-hint" onClick={() => showHint(1)}>
+        💡 Hint <span className="muted">(1 of {total})</span>
+      </button>
+    ) : null;
+
+  /** Once a hint is open: flip back and forth through the opened ones, open the next, or see the working. */
+  const hintNav =
+    phase === 'ask' && stepHints > 0 ? (
+      <div className="hint-nav" role="group" aria-label="Gina’s hints">
+        <div className="hint-text">
+          <span className="hint-label">💡 Hint {viewHint} of {total}</span>
+          <Rich text={step.hints[viewHint - 1]} as="div" />
+        </div>
+        <div className="hint-buttons">
+          <button type="button" className="btn btn-sm btn-secondary" disabled={viewHint <= 1} onClick={() => goHint(viewHint - 1)}>
+            ← Previous hint
+          </button>
+          {viewHint < stepHints ? (
+            <button type="button" className="btn btn-sm btn-secondary" onClick={() => goHint(viewHint + 1)}>
+              Next hint →
+            </button>
+          ) : stepHints < total ? (
+            <button type="button" className="btn btn-sm btn-hint" onClick={() => showHint(stepHints + 1)}>
+              Another hint →
+            </button>
+          ) : step.kind !== 'widget' ? (
+            <button type="button" className="btn btn-sm btn-hint" onClick={() => solve(true)}>
+              Show me the working
+            </button>
+          ) : null}
+        </div>
+      </div>
     ) : null;
 
   return (
     <div className="runner">
       <aside className="runner-gina">
         <GinaSays pose={pose} text={bubble} />
-        {phase === 'ask' && step.kind === 'widget' && stepHints < step.hints.length && (
-          <button type="button" className="btn btn-hint" onClick={() => showHint(stepHints + 1)}>
-            💡 Hint ({stepHints + 1} of {step.hints.length})
-          </button>
-        )}
+        {step.kind === 'widget' && hintButton}
+        {step.kind === 'widget' && hintNav}
       </aside>
       <div className="runner-main">
         {header}
@@ -308,6 +341,7 @@ export function ProblemRunner({ problem, mode, onFinish, finishLabel = 'Continue
                   {hintButton}
                 </div>
               )}
+              {step.kind !== 'widget' && hintNav}
             </div>
           )}
           <div className={`feedback ${feedback ? `fb-${feedback.tone}` : ''}`} role="status" aria-live="polite">

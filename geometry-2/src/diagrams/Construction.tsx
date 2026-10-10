@@ -8,7 +8,6 @@ export interface WidgetResult {
   wrong: number;
 }
 
-const toSvg = (p: P) => ({ x: p.x * K, y: p.y * K });
 
 function arcD(c: P, r: number, fromDeg: number, toDeg: number) {
   const a = (d: number) => ({ x: (c.x + r * Math.cos((d * Math.PI) / 180)) * K, y: (c.y - r * Math.sin((d * Math.PI) / 180)) * K });
@@ -19,7 +18,7 @@ function arcD(c: P, r: number, fromDeg: number, toDeg: number) {
 }
 
 /** Board with ruler ticks, a movable crosshair (tap, drag, or arrow keys), and an aria-live message line. */
-function Board({ w, h, children, cross, setCross, label }: { w: number; h: number; children: ReactNode; cross: P | null; setCross: (p: P) => void; label: string }) {
+function Board({ w, h, children, cross, setCross, label, onTap }: { w: number; h: number; children: ReactNode; cross: P | null; setCross: (p: P) => void; label: string; onTap?: (p: P) => void }) {
   const ref = useRef<SVGSVGElement>(null);
   const toCm = (e: React.PointerEvent) => {
     const svg = ref.current;
@@ -33,6 +32,11 @@ function Board({ w, h, children, cross, setCross, label }: { w: number; h: numbe
     return { x: q.x / K, y: q.y / K };
   };
   const onDown = (e: React.PointerEvent) => {
+    if (onTap) {
+      const t = toCm(e);
+      if (t) onTap(t);
+      return;
+    }
     if (!cross) return;
     const p = toCm(e);
     if (p) setCross({ x: Math.max(0, Math.min(w, p.x)), y: Math.max(0, Math.min(h, p.y)) });
@@ -55,7 +59,7 @@ function Board({ w, h, children, cross, setCross, label }: { w: number; h: numbe
       aria-label={label}
       tabIndex={cross ? 0 : -1}
       onPointerDown={onDown}
-      onPointerMove={(e) => e.buttons === 1 && onDown(e)}
+      onPointerMove={(e) => !onTap && e.buttons === 1 && onDown(e)}
       onKeyDown={onKey}
       style={{ touchAction: cross ? 'none' : 'auto' }}
     >
@@ -104,178 +108,180 @@ function Slider({ label, value, set, min, max }: { label: string; value: number;
   );
 }
 
-const STEP_NAMES = ['Draw the base', 'First arc', 'Second arc', 'Mark the crossing', 'Join up', 'Label the sides'];
+const STEP_NAMES = ['Choose the base', 'Arc from A', 'Arc from B', 'Mark where they cross', 'Join up'];
 
 // ───────────────────────── Triangle from three sides ─────────────────────────
 
+/**
+ * Easier, tap-only construction. The three side lengths stay pinned above the
+ * board and tick off as they're used. No sliders: the learner picks lengths.
+ */
 export function ConstructTriangle({ base, left, right, onDone, say }: { base: number; left: number; right: number; onDone: (r: WidgetResult) => void; say: (text: string, tone: 'ok' | 'bad' | 'info') => void }) {
   const W = 15;
   const H = 11;
   const Y = 9.6;
   const A: P = { x: (W - base) / 2, y: Y };
   const B: P = { x: A.x + base, y: Y };
+  const sides = [left, right, base];
   const [stage, setStage] = useState(0);
-  const [len, setLen] = useState(5);
-  const [centre, setCentre] = useState<'A' | 'B'>('A');
-  const [radius, setRadius] = useState(3);
-  const [arcs, setArcs] = useState<{ c: 'A' | 'B'; r: number }[]>([]);
-  const [cross, setCross] = useState<P | null>(null);
+  const [rA, setRA] = useState<number | null>(null);
+  const [rB, setRB] = useState<number | null>(null);
   const [C, setC] = useState<P | null>(null);
-  const [joined, setJoined] = useState({ A: false, B: false });
+  const [tap, setTap] = useState<P | null>(null);
+  const [misses, setMisses] = useState(0);
   const [wrong, setWrong] = useState(0);
   const bad = (t: string) => {
     setWrong((w) => w + 1);
     say(t, 'bad');
   };
-
-  const radiusFor = (c: 'A' | 'B') => arcs.find((a) => a.c === c)?.r;
-  const rA = radiusFor('A');
-  const rB = radiusFor('B');
   const trueC = rA && rB ? M.circleIntersections(A, rA, B, rB).sort((p, q) => p.y - q.y)[0] : undefined;
+  // Which of the three lengths have been used so far (by index, so equal lengths tick separately).
+  const used = new Set<number>();
+  if (stage >= 1) used.add(2);
+  if (rA !== null) used.add(rA === left && !used.has(0) ? 0 : 1);
+  if (rB !== null) used.add([0, 1].find((i) => !used.has(i))!);
 
-  const drawBase = () => {
-    if (Math.abs(len - base) > 0.05) return bad(`That line would be ${len.toFixed(1)} cm. The base should be the longest side, ${base} cm.`);
-    say(`A ${base} cm base. Now set your compasses to one of the other lengths.`, 'ok');
+  const chooseBase = (v: number) => {
+    if (v !== base) return bad(`Use the longest length, ${base} cm, as the base. Then the other two arcs meet above it.`);
+    say(`Base AB = ${base} cm. Now put the compass point on A. Which length do you open it to?`, 'ok');
     setStage(1);
   };
-  const drawArc = () => {
-    const firstDone = arcs[0];
-    if (firstDone && firstDone.c === centre) return bad(`You’ve already drawn an arc from ${centre}. The second arc goes from the other end.`);
-    const needed = firstDone ? (Math.abs(firstDone.r - left) < 0.05 ? right : left) : null;
-    const okR = needed !== null ? Math.abs(radius - needed) < 0.05 : Math.abs(radius - left) < 0.05 || Math.abs(radius - right) < 0.05;
-    if (!okR) return bad(needed !== null ? `That’s ${radius.toFixed(1)} cm. This arc needs the other length: ${needed} cm.` : `That’s ${radius.toFixed(1)} cm. Set the compasses to ${left} cm or ${right} cm.`);
-    const next = [...arcs, { c: centre, r: M.roundTo(radius, 1) }];
-    setArcs(next);
-    if (next.length === 1) {
-      say(`Arc of ${radius.toFixed(1)} cm from ${centre}. Every point on it is exactly ${radius.toFixed(1)} cm from ${centre}. Now the other end.`, 'ok');
-      setCentre(centre === 'A' ? 'B' : 'A');
-      setStage(2);
+  const arcFromA = (v: number) => {
+    setRA(v);
+    say(`Arc from A with radius ${v} cm — every point on it is ${v} cm from A. Now put the point on B and use the other length.`, 'ok');
+    setStage(2);
+  };
+  const arcFromB = (v: number) => {
+    const other = rA === left ? right : left;
+    if (v !== other) return bad(`You’ve already used ${rA} cm from A. From B, use the other length: ${other} cm.`);
+    setRB(v);
+    say('Both arcs drawn. Tap the point where the two arcs cross.', 'ok');
+    setStage(3);
+  };
+  const onTap = (p: P) => {
+    if (stage !== 3 || !trueC) return;
+    setTap(p);
+    if (M.dist(p, trueC) <= 1.0) {
+      setC(trueC);
+      setTap(null);
+      say('That’s the third corner, C — it’s the right distance from both A and B. Now join it up.', 'ok');
+      setStage(4);
     } else {
-      say('Both arcs drawn. Where do they cross? Move the marker there and press “Mark point”.', 'ok');
-      setCross({ x: W / 2, y: 3 });
-      setStage(3);
+      setMisses((m) => m + 1);
+      bad(misses >= 1 ? 'Look for the glowing ring — that’s where the two purple arcs cross. Tap inside it.' : 'Not quite. Find the spot where the two purple arcs cross each other, and tap there.');
     }
   };
-  const mark = () => {
-    if (!cross || !trueC) return;
-    const d = M.dist(cross, trueC);
-    if (d > 0.35) return bad(d > 2 ? 'Look for the spot where the two arcs cross each other.' : 'Close! Move the marker exactly onto the crossing point.');
-    setC(trueC);
-    setCross(null);
-    say('That’s the third corner, C. Now join it to both ends of the base.', 'ok');
-    setStage(4);
-  };
-  const join = (k: 'A' | 'B') => {
-    const j = { ...joined, [k]: true };
-    setJoined(j);
-    if (j.A && j.B) {
-      say(`Triangle complete! Now label it: which side is ${left} cm?`, 'ok');
-      setStage(5);
-    }
-  };
-  const label = (side: 'AC' | 'BC') => {
-    const acLen = rA!;
-    const correct = Math.abs((side === 'AC' ? acLen : rB!) - left) < 0.05;
-    if (!correct) return bad(`Not quite — ${side} was drawn with the ${side === 'AC' ? acLen : rB} cm arc. Which arc was ${left} cm?`);
-    say(`Yes: AC = ${rA} cm, BC = ${rB} cm, AB = ${base} cm. Every side matches!`, 'ok');
-    setStage(6);
+  const joinUp = () => {
+    say(`Triangle complete! AB = ${base} cm, AC = ${rA} cm, BC = ${rB} cm — exactly the three lengths we were given.`, 'ok');
+    setStage(5);
     onDone({ wrong });
   };
 
-  const showBase = stage >= 1 ? B : { x: A.x + len, y: Y };
-  const desc = `Drawing board. ${stage === 0 ? `A line from A, currently ${len.toFixed(1)} cm long.` : `Base AB = ${base} cm.`} ${arcs.map((a) => `Arc of radius ${a.r} cm from ${a.c}.`).join(' ')} ${C ? 'Point C marked.' : ''}`;
+  const S = (p: P) => ({ x: p.x * K, y: p.y * K });
+  const arcLabel = (c: P, r: number, deg: number) => {
+    const q = { x: c.x + r * Math.cos((deg * Math.PI) / 180), y: c.y - r * Math.sin((deg * Math.PI) / 180) };
+    return S(q);
+  };
+  const desc = `Drawing board. Sides to use: ${base} cm, ${left} cm and ${right} cm. ${stage >= 1 ? `Base AB = ${base} cm drawn.` : ''} ${rA ? `Arc of radius ${rA} cm from A.` : ''} ${rB ? `Arc of radius ${rB} cm from B.` : ''} ${C ? 'Point C marked.' : ''} ${stage >= 5 ? 'Triangle joined.' : ''}`;
+  const remaining = rA === null ? [left, right] : [rA === left ? right : left];
+
   return (
     <div className="construct">
+      <div className="target-sides" aria-label="The three side lengths">
+        <span className="ts-title">Your triangle:</span>
+        {sides.map((v, i) => (
+          <span key={i} className={`ts-chip ${used.has(i) ? 'used' : ''}`}>
+            <span aria-hidden="true">{used.has(i) ? '✓ ' : ''}</span>
+            {v} cm{i === 2 ? ' (longest)' : ''}
+            {used.has(i) && <span className="sr-only"> (used)</span>}
+          </span>
+        ))}
+      </div>
       <ol className="construct-steps" aria-label="Construction steps">
-        {STEP_NAMES.map((s, i) => (
-          <li key={s} className={i < stage ? 'done' : i === stage ? 'now' : ''}>
-            <span aria-hidden="true">{i < stage ? '✓' : i + 1}</span> {s}
+        {STEP_NAMES.map((n, i) => (
+          <li key={n} className={i < stage ? 'done' : i === stage ? 'now' : ''}>
+            <span aria-hidden="true">{i < stage ? '✓' : i + 1}</span> {n}
           </li>
         ))}
       </ol>
-      <Board w={W} h={H} cross={cross} setCross={setCross} label={desc}>
-        <line className="c-line" x1={toSvg(A).x} y1={toSvg(A).y} x2={toSvg(showBase).x} y2={toSvg(showBase).y} strokeDasharray={stage === 0 ? '6 4' : undefined} />
-        {/* ruler ticks under the base */}
-        {Array.from({ length: Math.floor(stage === 0 ? len : base) + 1 }, (_, i) => (
-          <g key={i}>
-            <line className="tick" x1={(A.x + i) * K} y1={Y * K + 6} x2={(A.x + i) * K} y2={Y * K + 14} />
-            <text className="tick-label" x={(A.x + i) * K} y={Y * K + 26} textAnchor="middle">{i}</text>
-          </g>
-        ))}
-        {arcs.map((a, i) => (
-          <path key={i} className="c-arc" d={a.c === 'A' ? arcD(A, a.r, 3, 97) : arcD(B, a.r, 83, 177)} />
-        ))}
-        {C && joined.A && <line className="c-line" x1={toSvg(A).x} y1={toSvg(A).y} x2={toSvg(C).x} y2={toSvg(C).y} />}
-        {C && joined.B && <line className="c-line" x1={toSvg(B).x} y1={toSvg(B).y} x2={toSvg(C).x} y2={toSvg(C).y} />}
-        {C && <circle className="c-point" cx={toSvg(C).x} cy={toSvg(C).y} r={5} />}
-        <circle className="c-point" cx={toSvg(A).x} cy={toSvg(A).y} r={5} />
-        <text className="c-label" x={toSvg(A).x - 18} y={toSvg(A).y + 6}>A</text>
-        {stage >= 1 && <circle className="c-point" cx={toSvg(B).x} cy={toSvg(B).y} r={5} />}
-        {stage >= 1 && <text className="c-label" x={toSvg(B).x + 10} y={toSvg(B).y + 6}>B</text>}
-        {C && <text className="c-label" x={toSvg(C).x - 6} y={toSvg(C).y - 14}>C</text>}
-        {stage >= 6 && C && (
+      <Board w={W} h={H} cross={null} setCross={() => {}} onTap={onTap} label={desc}>
+        {stage >= 1 && (
           <>
-            <text className="c-measure" x={(toSvg(A).x + toSvg(C).x) / 2 - 34} y={(toSvg(A).y + toSvg(C).y) / 2}>{rA} cm</text>
-            <text className="c-measure" x={(toSvg(B).x + toSvg(C).x) / 2 + 10} y={(toSvg(B).y + toSvg(C).y) / 2}>{rB} cm</text>
-            <text className="c-measure" x={(toSvg(A).x + toSvg(B).x) / 2 - 18} y={Y * K - 10}>{base} cm</text>
+            <line className="c-line" x1={S(A).x} y1={S(A).y} x2={S(B).x} y2={S(B).y} />
+            {Array.from({ length: base + 1 }, (_, i) => (
+              <g key={i}>
+                <line className="tick" x1={(A.x + i) * K} y1={Y * K + 6} x2={(A.x + i) * K} y2={Y * K + 14} />
+                <text className="tick-label" x={(A.x + i) * K} y={Y * K + 26} textAnchor="middle">{i}</text>
+              </g>
+            ))}
+            <text className="c-measure" x={(S(A).x + S(B).x) / 2} y={Y * K - 10} textAnchor="middle">{base} cm</text>
           </>
         )}
+        {rA && (
+          <>
+            <path className="c-arc" d={arcD(A, rA, 3, 97)} />
+            <text className="c-arc-label" x={arcLabel(A, rA, 100).x} y={arcLabel(A, rA, 100).y - 6} textAnchor="middle">{rA} cm</text>
+          </>
+        )}
+        {rB && (
+          <>
+            <path className="c-arc" d={arcD(B, rB, 83, 177)} />
+            <text className="c-arc-label" x={arcLabel(B, rB, 80).x} y={arcLabel(B, rB, 80).y - 6} textAnchor="middle">{rB} cm</text>
+          </>
+        )}
+        {stage === 3 && trueC && misses >= 1 && <circle className="c-hint-ring" cx={S(trueC).x} cy={S(trueC).y} r={1.0 * K} />}
+        {tap && stage === 3 && <circle className="c-tap" cx={S(tap).x} cy={S(tap).y} r={7} />}
+        {stage >= 5 && C && (
+          <>
+            <line className="c-line" x1={S(A).x} y1={S(A).y} x2={S(C).x} y2={S(C).y} />
+            <line className="c-line" x1={S(B).x} y1={S(B).y} x2={S(C).x} y2={S(C).y} />
+            <text className="c-measure" x={(S(A).x + S(C).x) / 2 - 14} y={(S(A).y + S(C).y) / 2} textAnchor="end">{rA} cm</text>
+            <text className="c-measure" x={(S(B).x + S(C).x) / 2 + 14} y={(S(B).y + S(C).y) / 2}>{rB} cm</text>
+          </>
+        )}
+        {C && <circle className="c-point" cx={S(C).x} cy={S(C).y} r={6} />}
+        {C && <text className="c-label" x={S(C).x - 6} y={S(C).y - 16}>C</text>}
+        <circle className="c-point" cx={S(A).x} cy={S(A).y} r={6} />
+        <text className="c-label" x={S(A).x - 20} y={S(A).y + 6}>A</text>
+        {stage >= 1 && <circle className="c-point" cx={S(B).x} cy={S(B).y} r={6} />}
+        {stage >= 1 && <text className="c-label" x={S(B).x + 10} y={S(B).y + 6}>B</text>}
       </Board>
       <div className="construct-controls">
         {stage === 0 && (
-          <>
-            <Slider label="Line length" value={len} set={setLen} min={1} max={12} />
-            <button type="button" className="btn btn-primary" onClick={drawBase}>Draw base line</button>
-          </>
-        )}
-        {(stage === 1 || stage === 2) && (
-          <>
-            <div className="seg" role="group" aria-label="Compass point on">
-              <span>Compass point on:</span>
-              {(['A', 'B'] as const).map((c) => (
-                <button key={c} type="button" className={`btn btn-sm ${centre === c ? 'btn-primary' : 'btn-secondary'}`} aria-pressed={centre === c} onClick={() => setCentre(c)}>{c}</button>
-              ))}
-            </div>
-            <Slider label="Compass width" value={radius} set={setRadius} min={0.5} max={12} />
-            <button type="button" className="btn btn-primary" onClick={drawArc}>Draw arc</button>
-          </>
-        )}
-        {stage === 3 && cross && (
-          <>
-            <p className="small muted">Tap or drag on the board, or use the arrows (arrow keys work too).</p>
-            <Nudge cross={cross} setCross={setCross} />
-            <button type="button" className="btn btn-primary" onClick={mark}>Mark point</button>
-          </>
-        )}
-        {stage === 4 && (
-          <div className="seg">
-            <button type="button" className="btn btn-primary" disabled={joined.A} onClick={() => join('A')}>{joined.A ? '✓ ' : ''}Join C to A</button>
-            <button type="button" className="btn btn-primary" disabled={joined.B} onClick={() => join('B')}>{joined.B ? '✓ ' : ''}Join C to B</button>
+          <div className="seg" role="group" aria-label="Which length is the base?">
+            <span>Which length is the base?</span>
+            {[...new Set(sides)].sort((x, y) => x - y).map((v) => (
+              <button key={v} type="button" className="btn btn-secondary" onClick={() => chooseBase(v)}>{v} cm</button>
+            ))}
           </div>
         )}
-        {stage === 5 && (
-          <div className="seg" role="group" aria-label={`Which side is ${left} cm?`}>
-            <span>Which side is {left} cm?</span>
-            <button type="button" className="btn btn-secondary" onClick={() => label('AC')}>AC</button>
-            <button type="button" className="btn btn-secondary" onClick={() => label('BC')}>BC</button>
+        {stage === 1 && (
+          <div className="seg" role="group" aria-label="Compass width for the arc from A">
+            <span>Compass point on A. Open it to:</span>
+            {[...new Set(remaining)].map((v) => (
+              <button key={v} type="button" className="btn btn-secondary" onClick={() => arcFromA(v)}>{v} cm</button>
+            ))}
           </div>
         )}
-        {stage < 6 && (
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost"
-            onClick={() => {
-              setStage(0);
-              setArcs([]);
-              setC(null);
-              setCross(null);
-              setJoined({ A: false, B: false });
-              say('Cleared. Start again with the base line.', 'info');
-            }}
-          >
-            ↺ Reset drawing
-          </button>
+        {stage === 2 && (
+          <div className="seg" role="group" aria-label="Compass width for the arc from B">
+            <span>Compass point on B. Open it to:</span>
+            {[...new Set([left, right])].map((v) => (
+              <button key={v} type="button" className="btn btn-secondary" onClick={() => arcFromB(v)}>{v} cm</button>
+            ))}
+          </div>
         )}
+        {stage === 3 && (
+          <>
+            <p className="small">Tap where the two purple arcs cross.</p>
+            {trueC && (
+              <button type="button" className="btn btn-sm btn-ghost" onClick={() => onTap(trueC)}>
+                Mark the crossing for me (keyboard)
+              </button>
+            )}
+          </>
+        )}
+        {stage === 4 && <button type="button" className="btn btn-primary" onClick={joinUp}>Join C to A and to B</button>}
       </div>
     </div>
   );

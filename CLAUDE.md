@@ -127,6 +127,8 @@ cd .. && python3 tests/serve_site.py 8766 & python3 tests/e2e_geometry2.py http:
 - Alex's rules from the build: every answer must be right (tests include an independent recomputation and KaTeX strict rendering); whole-number answers at warm-up/standard level; units scope is single-step mass conversions (×/÷ 1000) and small lengths (nm, μm) to metres in standard form, not general order-of-magnitude conversions; weak skills come up more often (mistakes + mixed exam weighting); the Unit converter page is wanted.
 - Worksheet Q4's diagram is wrong (110° drawn where 70° must be). The app uses correct values; don't "fix" it back.
 - Gina's nine poses: `waving, thinking, explaining, curious, encouraging, celebrating, cheering, reassuring, neutral` (note: `explaining`, not the Gang's `pointing`).
+- Hints: once one is opened, learners can flip ← Previous / Next → through the hints they've opened (free); only "Another hint" counts as help. Alex asked for this — keep it.
+- Triangle construction is tap-only and easy on purpose: the three side lengths stay pinned above the board and tick off; pick the base length, then the arc lengths from A and B; tapping within 1 cm of the crossing snaps to C (a hint ring shows after two misses); one tap joins up. No sliders.
 
 ## Adding Geometry 2 (or other React geometry games)
 

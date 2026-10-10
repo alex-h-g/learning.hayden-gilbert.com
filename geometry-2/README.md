@@ -22,7 +22,7 @@ python3 tests/serve_site.py 8766 &
 python3 tests/e2e_geometry2.py http://127.0.0.1:8766 /tmp/g2shots
 ```
 
-98 checks: welcome/name, worked examples answered correctly and wrongly, hints, the never-stuck reveal, the compass constructions, the cube planes, √63 and π answers, standard form, the converter, strengths/weaknesses, mistakes practice, revision guide, persistence, malformed storage, reset with confirmation, deep links and 404, a full mixed exam, and no horizontal scroll / touch targets / Gina size at phone, phone-landscape, iPad, iPad-landscape and desktop.
+107 checks: welcome/name, worked examples answered correctly and wrongly, hints, the never-stuck reveal, the compass constructions, the cube planes, √63 and π answers, standard form, the converter, strengths/weaknesses, mistakes practice, revision guide, persistence, malformed storage, reset with confirmation, deep links and 404, a full mixed exam, and no horizontal scroll / touch targets / Gina size at phone, phone-landscape, iPad, iPad-landscape and desktop.
 
 ## Deploying under /geometry-2
 
@@ -50,7 +50,7 @@ public/gina/            the nine poses (transparent WebP)
 
 Learn (Gina's slides) → Worked example (the worksheet's numbers, every step, hints free, not scored) → Practice (3 new questions, adaptive: simpler after a struggle, harder after two clean answers) → Mastery check (4 new questions; passes at 3/4 right first time with no hints) → Review. Stages can be visited in any order; prerequisites are recommended, never enforced.
 
-Each question is a list of steps (`choice`, `multi`, `number`, `decimal`, `sf`, `widget`). Steps marked `guidedOnly` appear only in the worked example, so practice and mastery ask fewer, bigger steps. Hints: 1 concept, 2 next operation, 3 explicit step, then "Show me the working". After 2 wrong tries a hint appears automatically; after 3 Gina shows the working and the next question is easier. Empty or unreadable input never counts as an attempt.
+Each question is a list of steps (`choice`, `multi`, `number`, `decimal`, `sf`, `widget`). Steps marked `guidedOnly` appear only in the worked example, so practice and mastery ask fewer, bigger steps. Hints: 1 concept, 2 next operation, 3 explicit step, then "Show me the working". Opened hints can be flipped back and forth (← Previous / Next →) without counting as extra help. After 2 wrong tries a hint appears automatically; after 3 Gina shows the working and the next question is easier. Empty or unreadable input never counts as an attempt.
 
 ## Correctness rules (don't break these)
 

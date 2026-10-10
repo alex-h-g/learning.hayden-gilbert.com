@@ -403,3 +403,20 @@ img { max-width: 100%; }
   .app-nav a { white-space: nowrap; }
   .site-nav { gap: 2px 14px; font-size: 0.95rem; }
 }
+.target-sides { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; background: #fff8e1; border: 2px solid #f2d28a; border-radius: 12px; position: sticky; top: 0; z-index: 2; }
+.ts-title { font-weight: 800; }
+.ts-chip { font-weight: 800; font-size: 1.1rem; padding: 4px 12px; border-radius: 99px; background: #fff; border: 2px solid #f2d28a; }
+.ts-chip.used { background: var(--green-50); border-color: #a9e2bf; color: #17663a; }
+.c-arc-label { font-family: var(--font); font-weight: 800; font-size: 15px; fill: #7048e8; paint-order: stroke; stroke: #fffef8; stroke-width: 4px; }
+.c-hint-ring { fill: rgba(232, 89, 12, 0.12); stroke: #e8590c; stroke-width: 2.5; stroke-dasharray: 6 4; }
+.c-tap { fill: none; stroke: #c62f3a; stroke-width: 2.5; }
+.board { cursor: crosshair; }
+.hint-nav { margin-top: 12px; border: 2px solid #f2d28a; background: var(--amber-50); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; }
+.hint-label { display: block; font-weight: 800; color: var(--amber); margin-bottom: 2px; }
+.hint-text p:last-child { margin-bottom: 0; }
+.hint-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 600px) {
+  .board .c-label { font-size: 30px; }
+  .board .c-measure, .board .c-arc-label { font-size: 26px; }
+  .board .tick-label { font-size: 17px; }
+}
