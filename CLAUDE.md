@@ -11,6 +11,7 @@ Free, ad-free learning games for kids (and anyone). Static site on SiteGround, n
 public_html/          ← exactly what goes on the server (deploy the CONTENTS into SiteGround's public_html/)
   index.html, home.js, styles.css     homepage (shared site styles: navy header, white cards, blue buttons)
   favicon.svg
+  images/             homepage images (ibegin-patty-piano.webp: Patty from iBegin's intro art, cropped)
   basic-geometry/     Basic Geometry BUILT output (never edit by hand; rebuild from basic-geometry/), incl. hidden .htaccess
   maths/              "Meet the Arithmetic Gang" launch page + shared core + character art
     core/js/          profile.js, progress.js, facts.js, curriculum-kit.js, shell.js
@@ -37,6 +38,8 @@ rm -rf ../public_html/basic-geometry && mkdir ../public_html/basic-geometry && c
 Its storage key is `basic-geometry:history:v1`, which the homepage `home.js` reads for "Welcome back". Don't change that shape without updating `home.js`.
 
 `learn-thai.hayden-gilbert.com` is a separate subdomain/site, not in this repo.
+
+`ibegin.hayden-gilbert.com` (Mr Bob's iBegin® Piano, repo `alex-h-g/ibegin-piano`) is also separate. The homepage has a "Music" card for it (styled inline, like the Gang card, so `styles.css` didn't change). Unlike the games here it has free lessons and then a **paid subscription with sign-in** — the card says so; keep that wording honest if the site's "Free · No sign-up" messaging changes.
 
 ## How a subject is built
 

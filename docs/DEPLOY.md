@@ -1,3 +1,7 @@
+# iBegin Piano card on the homepage (added October 2026)
+
+Upload `index.html` (replaces) and `images/ibegin-patty-piano.webp` (new) into `public_html/`, then flush the SiteGround cache. `styles.css` and `home.js` are unchanged.
+
 # Geometry 2 with Geometry Gina — deploy (added October 2026)
 
 | Path (in `public_html/`) | Status |
