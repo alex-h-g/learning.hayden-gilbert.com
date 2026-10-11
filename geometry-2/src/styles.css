@@ -420,3 +420,86 @@ img { max-width: 100%; }
   .board .c-measure, .board .c-arc-label { font-size: 26px; }
   .board .tick-label { font-size: 17px; }
 }
+
+/* ───────────────────────── Why Pythagoras works (squares demonstration) ───────────────────────── */
+:root {
+  --sq-blue: #2f7de1;
+  --sq-blue-l: #d6e7fc;
+  --sq-orange: #e8730c;
+  --sq-orange-l: #ffe3c9;
+  --sq-green: #1f9254;
+  --sq-green-l: #d7f2e1;
+}
+.demo-progress { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.85rem; }
+.demo-progress li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; background: #eef1f6; color: var(--muted); }
+.demo-progress li.now { background: var(--blue-50); color: var(--ink); font-weight: 800; outline: 2px solid var(--blue); }
+.demo-progress li.done { background: var(--green-50); color: #17663a; }
+@media (max-width: 760px) { .demo-progress li:not(.now) .demo-progress-label { display: none; } }
+.demo-card .demo-title { font-size: 1.3rem; }
+.big-formula { font-size: 1.6rem; text-align: center; background: var(--green-50); border-radius: 14px; padding: 12px; margin: 6px 0 14px; }
+.pyth-board { width: 100%; max-width: 520px; height: auto; display: block; margin: 8px auto; touch-action: manipulation; }
+.dtri { fill: #fff8e1; stroke: #1d3354; stroke-width: 3; stroke-linejoin: round; }
+.dright { fill: none; stroke: #1d3354; stroke-width: 2.5; }
+.dsq-outline { fill: none; stroke-width: 3; }
+.dcell { stroke: rgba(255, 255, 255, 0.9); stroke-width: 1.6; transition: fill 0.25s, opacity 0.3s; }
+.dsq-blue .dcell { fill: var(--sq-blue-l); }
+.dsq-blue .dsq-outline { stroke: var(--sq-blue); }
+.dsq-orange .dcell { fill: var(--sq-orange-l); }
+.dsq-orange .dsq-outline { stroke: var(--sq-orange); }
+.dsq-green .dcell { fill: var(--sq-green-l); }
+.dsq-green .dsq-outline { stroke: var(--sq-green); }
+.dcell.neutral { fill: #f6f7f9 !important; stroke: #9fb3a6; stroke-width: 1.2; stroke-dasharray: 3 3; }
+.dsq.lit.dsq-blue .dcell { fill: var(--sq-blue); }
+.dsq.lit.dsq-orange .dcell { fill: var(--sq-orange); }
+.dsq.lit.dsq-green .dcell { fill: var(--sq-green); }
+.dsq.lit.dsq-green .dcell.neutral { fill: var(--sq-green-l) !important; stroke: var(--sq-green); stroke-dasharray: none; }
+.dsq.faded { opacity: 0.35; }
+.dsq.clickable { cursor: pointer; }
+.dsq.clickable:hover .dsq-outline, .dsq.clickable:focus-visible .dsq-outline { stroke-width: 5; }
+.dsq:focus { outline: none; }
+.dsq:focus-visible .dsq-outline { stroke: #142033; stroke-width: 5; }
+.dcount { font-family: var(--font); font-size: 15px; font-weight: 900; fill: #fff; paint-order: stroke; stroke: rgba(20, 32, 51, 0.55); stroke-width: 3px; pointer-events: none; }
+.dsq-label rect { fill: #fff; stroke: #c3cede; stroke-width: 1.5; }
+.dsq-label text { font-family: var(--font); font-weight: 900; font-size: 16px; fill: #142033; }
+.dside-pill rect { fill: #fff; stroke: #1d3354; stroke-width: 2; }
+.dside-pill text { font-family: var(--font); font-weight: 900; font-size: 16px; fill: #142033; }
+.dside-pill.side-c rect { stroke: var(--sq-green); stroke-width: 2.5; }
+.dside-hit { stroke: transparent; stroke-width: 34; cursor: pointer; }
+.dside-mark { stroke-width: 7; stroke-linecap: round; pointer-events: none; }
+.dside-mark.right { stroke: var(--sq-green); }
+.dside-mark.wrong { stroke: var(--red); stroke-dasharray: 8 6; }
+.dtile rect { stroke: #fff; stroke-width: 1.8; }
+.dtile-blue rect { fill: var(--sq-blue); }
+.dtile-orange rect { fill: var(--sq-orange); }
+.dtile-blue-fill { fill: var(--sq-blue); }
+.dtile-orange-fill { fill: var(--sq-orange); }
+.dtile-green-fill { fill: var(--sq-green); }
+.demo-choices, .demo-count-buttons, .demo-anim-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+.sq-btn { color: #fff; border: none; min-height: 46px; }
+.sq-btn-blue { background: var(--sq-blue); }
+.sq-btn-orange { background: #c55f06; }
+.sq-btn-green { background: var(--sq-green); }
+.demo-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; font-weight: 650; }
+.demo-toggle input { width: 22px; height: 22px; }
+.demo-counter { text-align: center; font-weight: 900; font-size: 1.2rem; min-height: 1.6em; margin: 4px 0; }
+.demo-caption { text-align: center; font-weight: 800; font-size: 1.15rem; background: var(--surface-2); border-radius: 12px; padding: 8px 12px; }
+.demo-caption.done { background: var(--green-50); color: #17663a; }
+.demo-result { text-align: center; font-size: 1.25rem; }
+.demo-question { font-weight: 750; font-size: 1.12rem; }
+.sq-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; justify-content: center; }
+.sq-fig { margin: 0; text-align: center; }
+.sq-fig figcaption { margin-top: 6px; font-size: 1.1rem; }
+.sq-grid { display: block; margin: 0 auto; height: auto; }
+.formula-steps { list-style: none; padding: 0; font-size: 1.35rem; display: grid; gap: 8px; }
+.formula-steps li { background: var(--surface-2); border-radius: 10px; padding: 8px 12px; }
+.demo-note { background: var(--amber-50); border-radius: 12px; padding: 10px 14px; }
+.demo-status { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+.demo-status h4 { margin: 0 0 6px; }
+.demo-status ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+@media (max-width: 600px) {
+  .dsq-label text, .dside-pill text { font-size: 18px; }
+  .dcount { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dcell { transition: none; }
+}

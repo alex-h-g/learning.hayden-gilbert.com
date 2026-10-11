@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { LESSONS, lessonById, topicById } from '../content';
 import type { Difficulty, LessonDef, Problem } from '../content/types';
 import { GinaSays } from '../components/Gina';
@@ -7,11 +7,12 @@ import { ProblemRunner } from '../components/ProblemRunner';
 import { Rich } from '../components/Rich';
 import { Math as TeX } from '../components/Math';
 import { BadgeToast } from '../components/Badges';
+import { PythagorasDemo } from '../components/PythagorasDemo';
 import { ProgressBar } from '../components/common';
 import { Diagram } from '../diagrams/Diagram';
 import { seeded } from '../lib/random';
 import { freshSeed } from '../lib/fresh';
-import { awardBadges, lessonP, lessonStatus, recordOutcome, suggestedLesson, updateLesson, type Outcome } from '../lib/progress';
+import { awardBadges, lessonP, lessonStatus, recordOutcome, suggestedLesson, updateDemo, updateLesson, type Outcome } from '../lib/progress';
 import { useStore } from '../lib/store';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -28,16 +29,20 @@ export const PASS_MARK = 0.75;
 
 export function LessonPage() {
   const { id } = useParams();
+  const [params] = useSearchParams();
   const lesson = id ? lessonById(id) : undefined;
   if (!lesson) return <NotFoundPage />;
-  return <Lesson key={lesson.id} lesson={lesson} />;
+  return <Lesson key={`${lesson.id}-${params.get('stage') ?? ''}`} lesson={lesson} />;
 }
 
 function Lesson({ lesson }: { lesson: LessonDef }) {
   const { data } = useStore();
   const lp = lessonP(data, lesson.id);
   const topic = topicById(lesson.topic)!;
-  const startStage: Stage = !lp.introSeen ? 'intro' : !lp.guidedDone ? 'guided' : lp.practiceDone < (lesson.practiceCount ?? 3) ? 'practice' : lp.masteryPassed ? 'review' : 'mastery';
+  const [params] = useSearchParams();
+  // ?stage=learn opens the Learn stage directly (e.g. "watch the demonstration again").
+  const asked = params.get('stage') === 'learn' ? 'intro' : null;
+  const startStage: Stage = asked ?? (!lp.introSeen ? 'intro' : !lp.guidedDone ? 'guided' : lp.practiceDone < (lesson.practiceCount ?? 3) ? 'practice' : lp.masteryPassed ? 'review' : 'mastery');
   const [stage, setStage] = useState<Stage>(startStage);
   const [slide, setSlide] = useState(0);
   const [newBadges, setNewBadges] = useState<string[]>([]);
@@ -74,7 +79,16 @@ function Lesson({ lesson }: { lesson: LessonDef }) {
       </div>
       <BadgeToast ids={newBadges} onClose={() => setNewBadges([])} />
 
-      {stage === 'intro' && (
+      {stage === 'intro' && lesson.demo === 'pythagoras-squares' && (
+        <PythagorasDemo
+          onDone={() => {
+            updateLesson(lesson.id, (l) => (l.introSeen = true));
+            addBadges(awardBadges());
+            go('guided');
+          }}
+        />
+      )}
+      {stage === 'intro' && !lesson.demo && (
         <Intro
           lesson={lesson}
           slide={slide}
@@ -189,12 +203,19 @@ function Guided({ lesson, onDone }: { lesson: LessonDef; onDone: () => void }) {
       key={`g${i}`}
       problem={problem}
       mode="guided"
-      header={<p className="stage-note">Worked example {examples.length > 1 ? `${i + 1} of ${examples.length}` : ''} — from the revision worksheet. Have a go at each step; hints are free here.</p>}
+      header={
+        <p className="stage-note">
+          Worked example {examples.length > 1 ? `${i + 1} of ${examples.length}` : ''} — {lesson.demo ? 'use what you discovered on a new triangle' : 'from the revision worksheet'}. Have a go at each step; hints are free here.
+        </p>
+      }
       finishLabel={i < examples.length - 1 ? 'Next worked example →' : 'Now you try →'}
       onFinish={() => {
         // The worked example is teaching, so it isn't scored.
         if (i < examples.length - 1) setI(i + 1);
-        else onDone();
+        else {
+          if (lesson.demo) updateDemo(lesson.demo, (d) => (d.transferDone = true));
+          onDone();
+        }
       }}
     />
   );
@@ -307,6 +328,7 @@ function Review({ lesson, last, onRetry, onPractice }: { lesson: LessonDef; last
           <div className="btn-row">
             {!passed && <button type="button" className="btn btn-primary" onClick={onPractice}>Practise a bit more</button>}
             {!passed && <button type="button" className="btn btn-secondary" onClick={onRetry}>Try the mastery check again</button>}
+            {!passed && lesson.topic === 'pythagoras' && <Link className="btn btn-secondary" to="/lesson/pythagoras-why?stage=learn">See why it works again (squares demo)</Link>}
             {passed && following && <Link className="btn btn-primary" to={`/lesson/${following.id}`}>Next lesson: {following.title} →</Link>}
             {passed && <button type="button" className="btn btn-secondary" onClick={onPractice}>Keep practising</button>}
             {nextId !== lesson.id && nextId !== following?.id && <Link className="btn btn-secondary" to={`/lesson/${nextId}`}>Suggested: {lessonById(nextId)!.title}</Link>}

@@ -10,7 +10,7 @@ Vite + React + TypeScript. No backend, no accounts, no tracking. Progress lives 
 cd geometry-2
 npm install
 npm run dev            # http://localhost:5173/geometry-2/
-npm test               # 115 unit tests (maths, every generator, independent cross-check, KaTeX rendering)
+npm test               # 131 unit tests (maths, every generator, independent cross-check, KaTeX rendering)
 npm run build          # type-check + build to dist/ + postbuild (route copies, 404.html, .htaccess)
 rm -rf ../public_html/geometry-2 && mkdir ../public_html/geometry-2 && cp -R dist/. ../public_html/geometry-2/
 ```
@@ -22,7 +22,7 @@ python3 tests/serve_site.py 8766 &
 python3 tests/e2e_geometry2.py http://127.0.0.1:8766 /tmp/g2shots
 ```
 
-107 checks: welcome/name, worked examples answered correctly and wrongly, hints, the never-stuck reveal, the compass constructions, the cube planes, √63 and π answers, standard form, the converter, strengths/weaknesses, mistakes practice, revision guide, persistence, malformed storage, reset with confirmation, deep links and 404, a full mixed exam, and no horizontal scroll / touch targets / Gina size at phone, phone-landscape, iPad, iPad-landscape and desktop.
+181 checks (including the squares demonstration on desktop, and on a phone with reduced motion): welcome/name, worked examples answered correctly and wrongly, hints, the never-stuck reveal, the compass constructions, the cube planes, √63 and π answers, standard form, the converter, strengths/weaknesses, mistakes practice, revision guide, persistence, malformed storage, reset with confirmation, deep links and 404, a full mixed exam, and no horizontal scroll / touch targets / Gina size at phone, phone-landscape, iPad, iPad-landscape and desktop.
 
 ## Deploying under /geometry-2
 
@@ -33,11 +33,12 @@ python3 tests/e2e_geometry2.py http://127.0.0.1:8766 /tmp/g2shots
 ```
 src/math/core.ts        every formula and calculation (angles, Pythagoras, circles, compound, exact decimals, prefixes, standard form, construction geometry)
 src/math/cube.ts        cube planes; proves the 9 symmetry planes by reflecting all 8 corners
+src/math/pythagorasDemo.ts  3-4-5 triangle, squares on each side, the 25-tile plan for the 'why it works' demo
 src/math/parse.ts       reads typed answers: 64,800 · 7.94 · 3√7 · sqrt(63) · 48 + 8π · units
 src/math/validate.ts    marking: exact, rounded (stated tolerance), standard form, exact decimals
 src/content/lessons/    the 22 lessons (6 topics): intro slides, worksheet worked example, generator, revision-guide text
 src/content/types.ts    Problem / Step / Diagram types
-src/components/         Gina, ProblemRunner (steps, hints, feedback, poses), Layout, Rich (text + $maths$)
+src/components/         Gina, ProblemRunner (steps, hints, feedback, poses), PythagorasDemo (squares demonstration), Layout, Rich (text + $maths$)
 src/diagrams/           Diagram.tsx (all 2D figures), Cube3D.tsx (rotatable cube), Construction.tsx (compass boards)
 src/lib/store.ts        localStorage (key geometry-2:history:v1), sanitised on load, in-memory fallback
 src/lib/progress.ts     outcomes, confidence, status, weak/strong skills, weighting, stars, badges
@@ -48,7 +49,7 @@ public/gina/            the nine poses (transparent WebP)
 
 ## How a lesson works
 
-Learn (Gina's slides) → Worked example (the worksheet's numbers, every step, hints free, not scored) → Practice (3 new questions, adaptive: simpler after a struggle, harder after two clean answers) → Mastery check (4 new questions; passes at 3/4 right first time with no hints) → Review. Stages can be visited in any order; prerequisites are recommended, never enforced.
+Learn (Gina's slides, or for `pythagoras-why` the interactive squares demonstration) → Worked example (the worksheet's numbers, every step, hints free, not scored) → Practice (3 new questions, adaptive: simpler after a struggle, harder after two clean answers) → Mastery check (4 new questions; passes at 3/4 right first time with no hints) → Review. Stages can be visited in any order; prerequisites are recommended, never enforced.
 
 Each question is a list of steps (`choice`, `multi`, `number`, `decimal`, `sf`, `widget`). Steps marked `guidedOnly` appear only in the worked example, so practice and mastery ask fewer, bigger steps. Hints: 1 concept, 2 next operation, 3 explicit step, then "Show me the working". Opened hints can be flipped back and forth (← Previous / Next →) without counting as extra help. After 2 wrong tries a hint appears automatically; after 3 Gina shows the working and the next question is easier. Empty or unreadable input never counts as an attempt.
 
@@ -71,7 +72,7 @@ Each question is a list of steps (`choice`, `multi`, `number`, `decimal`, `sf`, 
 
 ## Progress storage
 
-Key `geometry-2:history:v1`: `{ name, welcomed, stars, badges[], skills{ attempted, firstTry, afterHelp, revealed, wrongAttempts, hints, recent[], last, wrong[] }, lessons{ opened, introSeen, guidedDone, practiceDone, masteryBest, masteryPassed }, examBest, examsDone, lastLesson }`. The homepage `home.js` reads `skills` for "Welcome back" — keep that shape. Recent question wording (no-repeat guard) is in `sessionStorage` only.
+Key `geometry-2:history:v1`: `{ name, welcomed, stars, badges[], skills{ attempted, firstTry, afterHelp, revealed, wrongAttempts, hints, recent[], last, wrong[] }, lessons{ opened, introSeen, guidedDone, practiceDone, masteryBest, masteryPassed }, examBest, examsDone, lastLesson }`. `demos['pythagoras-squares']` records the squares demonstration (started, completed, hypotenuse first try or with help, 9 + 16 worked out, discovery, transfer done, hints) — separate from mastery. The homepage `home.js` reads `skills` for "Welcome back" — keep that shape. Recent question wording (no-repeat guard) is in `sessionStorage` only.
 
 ## Troubleshooting
 

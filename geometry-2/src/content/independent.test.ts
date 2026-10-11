@@ -216,3 +216,40 @@ describe('independent check of every generated answer', () => {
     });
   });
 });
+
+describe('why Pythagoras works: transfer questions', () => {
+  it('every generated answer is right (plain arithmetic, no app maths)', () => {
+    each('pythagoras-why', 900, (p) => {
+      const nums = numbersIn(p.question.replace(/\$/g, ' '));
+      const last = p.steps[p.steps.length - 1];
+      if (p.question.startsWith('The two shorter sides')) {
+        const [a, b] = nums;
+        let c = 1;
+        while (c * c < a * a + b * b) c++;
+        expect(c * c).toBe(a * a + b * b); // whole-number triple
+        expect(finalNumber(p)).toBe(c);
+      } else if (p.question.startsWith('A right-angled triangle has hypotenuse')) {
+        const [c, k] = nums;
+        let x = 1;
+        while (x * x < c * c - k * k) x++;
+        expect(x * x).toBe(c * c - k * k);
+        expect(finalNumber(p)).toBe(x);
+        expect(x * x + k * k).toBe(c * c);
+      } else if (p.question.startsWith('A triangle has sides')) {
+        const [x, y, z] = nums;
+        const right = x * x + y * y === z * z;
+        expect(last.kind).toBe('choice');
+        if (last.kind === 'choice') expect(last.options.find((o) => o.correct)!.id).toBe(right ? 'yes' : 'no');
+        expect(x + y > z).toBe(true); // a real triangle either way
+      } else throw new Error(`unexpected question: ${p.question}`);
+    });
+  });
+  it('worked examples are the 5-12-13 transfer and the 3-5 → 4 missing side', () => {
+    const l = lesson('pythagoras-why');
+    expect(finalNumber(l.guided())).toBe(13);
+    expect(l.guided().question).toContain('$5$ and $12$');
+    const m = l.moreGuided![0]();
+    expect(finalNumber(m)).toBe(4);
+    expect(m.question).toContain('hypotenuse $5$ and one shorter side $3$');
+  });
+});

@@ -174,6 +174,8 @@ export interface LessonDef {
   intro: Slide[];
   /** The worked example from the worksheet, taught step by step. */
   guided: () => Problem;
+  /** Replaces the Learn slides with an interactive demonstration. */
+  demo?: 'pythagoras-squares';
   /** Further worksheet examples, also taught step by step. */
   moreGuided?: (() => Problem)[];
   /** New questions every time. Must compute answers via src/math/core.ts. */

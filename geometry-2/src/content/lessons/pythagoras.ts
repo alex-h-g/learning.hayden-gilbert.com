@@ -39,6 +39,245 @@ function letters(rng: Rng): [string, string, string] {
   ] as [string, string, string][]).slice() as [string, string, string];
 }
 
+// ───────────────────────── 0. Why it works (squares demonstration) ─────────────────────────
+// The Learn stage is the interactive demo (src/components/PythagorasDemo.tsx).
+// The questions below transfer the idea to new triangles, always with whole numbers.
+
+/** Whole-number right-angled triangles (shorter, shorter, hypotenuse). */
+export const WHY_TRIPLES: Record<Difficulty, [number, number, number][]> = {
+  0: [[3, 4, 5], [6, 8, 10]],
+  1: [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [7, 24, 25]],
+  2: [[5, 12, 13], [8, 15, 17], [7, 24, 25], [9, 12, 15], [12, 16, 20], [20, 21, 29], [9, 40, 41]],
+};
+
+function whyHypProblem(rng: Rng, a: number, b: number, guided = false): Problem {
+  const c2 = a * a + b * b;
+  const c = Math.sqrt(c2);
+  if (!Number.isInteger(c)) throw new Error('why-hyp: not a whole-number triple');
+  return {
+    id: pid('pythagoras-why', rng),
+    skill: 'pythagoras-why',
+    intro: guided ? 'Now let’s use the squares idea on a brand-new triangle. Same rule, bigger numbers!' : 'Two shorter sides are known. Let’s find the hypotenuse.',
+    question: `The two shorter sides of a right-angled triangle are $${a}$ and $${b}$. How long is the hypotenuse $c$?`,
+    diagram: { type: 'right-triangle', a, b, labels: { a: String(a), b: String(b), c: 'c' }, rotation: guided ? 0 : pick(rng, [0, 90, 180, 270]), flip: !guided && rng() < 0.5 },
+    steps: [
+      {
+        id: 'equation',
+        kind: 'choice',
+        prompt: 'Which equation do we need?',
+        options: opts(rng, [
+          ok('ok', `$${a}^2 + ${b}^2 = c^2$`),
+          no('swap', `$${a}^2 + c^2 = ${b}^2$`, 'The squared side that stands on its own must be the hypotenuse, $c$ — the side opposite the right angle.'),
+          no('plain', `$${a} + ${b} = c$`, 'Remember the tiles: it’s the **squares** of the sides that add up, not the sides themselves.'),
+        ]),
+        hints: ['Use $a^2 + b^2 = c^2$.', `The shorter sides are $${a}$ and $${b}$.`, `$${a}^2 + ${b}^2 = c^2$`],
+        explain: `$a^2 + b^2 = c^2$ becomes $${a}^2 + ${b}^2 = c^2$.`,
+        guidedOnly: true,
+        pose: 'curious',
+      },
+      {
+        id: 'asq',
+        kind: 'number',
+        prompt: `What is $${a}^2$? (Think of a square ${a} tiles wide.)`,
+        label: `$${a}^2 =$`,
+        answer: { value: a * a, tol: 0 },
+        display: `$${a}^2 = ${a * a}$`,
+        hints: ['Squaring means multiplying a number by itself.', `$${a}^2 = ${a} \\times ${a}$`, `$${a} \\times ${a} = \;?$`],
+        explain: `$${a}^2 = ${a} \\times ${a} = ${a * a}$`,
+        guidedOnly: true,
+      },
+      {
+        id: 'bsq',
+        kind: 'number',
+        prompt: `And $${b}^2$?`,
+        label: `$${b}^2 =$`,
+        answer: { value: b * b, tol: 0 },
+        display: `$${b}^2 = ${b * b}$`,
+        hints: ['Multiply the number by itself.', `$${b}^2 = ${b} \\times ${b}$`, `$${b} \\times ${b} = \;?$`],
+        explain: `$${b}^2 = ${b} \\times ${b} = ${b * b}$`,
+        guidedOnly: true,
+      },
+      {
+        id: 'csq',
+        kind: 'number',
+        prompt: `So $c^2 = ${a}^2 + ${b}^2 = \;?$`,
+        label: '$c^2 =$',
+        answer: { value: c2, tol: 0 },
+        display: `$c^2 = ${a * a} + ${b * b} = ${c2}$`,
+        hints: ['Add the two squares together — like putting the two groups of tiles together.', `$${a}^2 = ${a * a}$ and $${b}^2 = ${b * b}$.`, `$${a * a} + ${b * b} = \;?$`],
+        explain: `$c^2 = ${a * a} + ${b * b} = ${c2}$`,
+      },
+      {
+        id: 'c',
+        kind: 'number',
+        prompt: `$c^2 = ${c2}$. What number multiplied by itself gives $${c2}$?`,
+        label: '$c =$',
+        answer: { value: c, tol: 0 },
+        display: `$c = \\sqrt{${c2}} = ${c}$`,
+        hints: ['Undo the square with a square root.', `$c = \\sqrt{${c2}}$`, `Try $${c} \\times ${c}$.`],
+        explain: `$c = \\sqrt{${c2}} = ${c}$, because $${c} \\times ${c} = ${c2}$.`,
+      },
+    ],
+    summary: `$${a}^2 + ${b}^2 = ${a * a} + ${b * b} = ${c2}$, so $c^2 = ${c2}$ and $c = \\sqrt{${c2}} = ${c}$. The square on the hypotenuse would hold $${c2}$ tiles — exactly the $${a * a}$ and $${b * b}$ tiles put together.`,
+    answer: `$c = ${c}$`,
+  };
+}
+
+function whyMissingProblem(rng: Rng, known: number, c: number, guided = false): Problem {
+  const b2 = c * c - known * known;
+  const b = Math.sqrt(b2);
+  if (!Number.isInteger(b) || b <= 0) throw new Error('why-missing: not a whole-number triple');
+  const letter = guided ? 'b' : pick(rng, ['a', 'b']);
+  const eq = letter === 'a' ? `${letter}^2 + ${known}^2 = ${c}^2` : `${known}^2 + ${letter}^2 = ${c}^2`;
+  const eqNum = letter === 'a' ? `${letter}^2 + ${known * known} = ${c * c}` : `${known * known} + ${letter}^2 = ${c * c}`;
+  return {
+    id: pid('pythagoras-why', rng),
+    skill: 'pythagoras-why',
+    intro: guided ? 'The theorem works backwards too. If we know the hypotenuse, we can find a missing shorter side.' : 'This time the hypotenuse is known. Let’s find a shorter side.',
+    question: `A right-angled triangle has hypotenuse $${c}$ and one shorter side $${known}$. Find the other shorter side, $${letter}$.`,
+    diagram: {
+      type: 'right-triangle',
+      a: letter === 'a' ? b : known,
+      b: letter === 'a' ? known : b,
+      labels: { a: letter === 'a' ? letter : String(known), b: letter === 'a' ? String(known) : letter, c: String(c) },
+      rotation: guided ? 0 : pick(rng, [0, 90, 180, 270]),
+      flip: !guided && rng() < 0.5,
+    },
+    steps: [
+      {
+        id: 'substitute',
+        kind: 'choice',
+        prompt: `Put the numbers into $a^2 + b^2 = c^2$. Which is right?`,
+        options: opts(rng, [
+          ok('ok', `$${eq}$`),
+          no('swap', `$${known}^2 + ${c}^2 = ${letter}^2$`, `$${c}$ is the hypotenuse (opposite the right angle), so $${c}^2$ goes on its own.`),
+          no('plain', `$${known} + ${letter} = ${c}$`, 'It’s the squares of the sides that add up, not the sides.'),
+        ]),
+        hints: [`The hypotenuse is $${c}$, so $c = ${c}$.`, `One shorter side is $${known}$; the other is $${letter}$.`, `$${eq}$`],
+        explain: `$${eq}$, which is $${eqNum}$.`,
+        guidedOnly: true,
+        pose: 'curious',
+      },
+      {
+        id: 'isolate',
+        kind: 'choice',
+        prompt: `$${eqNum}$. What should we do to get $${letter}^2$ on its own?`,
+        options: opts(rng, [
+          ok('sub', `Subtract $${known * known}$ from both sides`),
+          no('add', `Add $${known * known}$ to both sides`, `That gives $${letter}^2 + ${2 * known * known}$ — further away! We want to remove the $${known * known}$.`),
+          no('div', `Divide both sides by $${known * known}$`, `$${known * known}$ is added to $${letter}^2$, not multiplied, so dividing won’t remove it.`),
+          no('root', 'Square-root everything straight away', `Not yet — square roots don’t split across a $+$. Get $${letter}^2$ alone first.`),
+        ]),
+        hints: [`$${known * known}$ is being added to $${letter}^2$.`, 'To undo adding, we subtract.', `Take $${known * known}$ away from both sides.`],
+        explain: `Subtract $${known * known}$ from both sides: $${letter}^2 = ${c * c} - ${known * known}$.`,
+        guidedOnly: true,
+      },
+      {
+        id: 'sq',
+        kind: 'number',
+        prompt: `Work out $${letter}^2 = ${c}^2 - ${known}^2$.`,
+        label: `$${letter}^2 =$`,
+        answer: { value: b2, tol: 0 },
+        display: `$${letter}^2 = ${c * c} - ${known * known} = ${b2}$`,
+        hints: ['Square both numbers first.', `$${c}^2 = ${c * c}$ and $${known}^2 = ${known * known}$.`, `$${c * c} - ${known * known} = \;?$`],
+        explain: `$${letter}^2 = ${c * c} - ${known * known} = ${b2}$`,
+      },
+      {
+        id: 'side',
+        kind: 'number',
+        prompt: `What number multiplied by itself gives $${b2}$?`,
+        label: `$${letter} =$`,
+        answer: { value: b, tol: 0 },
+        display: `$${letter} = \\sqrt{${b2}} = ${b}$`,
+        hints: ['Undo the square with a square root.', `$${letter} = \\sqrt{${b2}}$`, `Try $${b} \\times ${b}$.`],
+        explain: `$${letter} = \\sqrt{${b2}} = ${b}$, because $${b} \\times ${b} = ${b2}$.`,
+      },
+    ],
+    summary:
+      known === 3 && c === 5
+        ? `$${letter}^2 = 25 - 9 = 16$, so $${letter} = 4$ — the very same $3$-$4$-$5$ triangle we built the squares on! Pythagoras’ theorem can check a triangle **and** find a missing side.`
+        : `$${letter}^2 = ${c}^2 - ${known}^2 = ${b2}$, so $${letter} = ${b}$. Check: $${known}^2 + ${b}^2 = ${known * known} + ${b2} = ${c * c} = ${c}^2$ ✓`,
+    answer: `$${letter} = ${b}$`,
+  };
+}
+
+/** Is a triangle with these sides right-angled? (Sometimes not — so learners check rather than assume.) */
+function whyCheckProblem(rng: Rng, p: number, q: number, r: number): Problem {
+  const sumSq = p * p + q * q;
+  const right = sumSq === r * r;
+  return {
+    id: pid('pythagoras-why', rng),
+    skill: 'pythagoras-why',
+    intro: 'Pythagoras can also tell us whether a triangle has a right angle. Let’s check.',
+    question: `A triangle has sides $${p}$, $${q}$ and $${r}$. Is it a right-angled triangle?`,
+    steps: [
+      {
+        id: 'sum',
+        kind: 'number',
+        prompt: `Square the two shorter sides and add: $${p}^2 + ${q}^2 = \;?$`,
+        answer: { value: sumSq, tol: 0 },
+        display: `$${p * p} + ${q * q} = ${sumSq}$`,
+        hints: ['Square each shorter side first.', `$${p}^2 = ${p * p}$, $${q}^2 = ${q * q}$.`, `$${p * p} + ${q * q} = \;?$`],
+        explain: `$${p}^2 + ${q}^2 = ${p * p} + ${q * q} = ${sumSq}$`,
+      },
+      {
+        id: 'longest',
+        kind: 'number',
+        prompt: `Now square the longest side: $${r}^2 = \;?$`,
+        answer: { value: r * r, tol: 0 },
+        display: `$${r}^2 = ${r * r}$`,
+        hints: ['Multiply the longest side by itself.', `$${r} \\times ${r}$`, `$${r} \\times ${r} = \;?$`],
+        explain: `$${r}^2 = ${r * r}$`,
+      },
+      {
+        id: 'verdict',
+        kind: 'choice',
+        prompt: `$${sumSq}$ and $${r * r}$: is the triangle right-angled?`,
+        options: opts(rng, [
+          right ? ok('yes', `Yes — $${sumSq} = ${r * r}$`) : no('yes', 'Yes', `The two smaller squares make $${sumSq}$ tiles, but the big square needs $${r * r}$. They don’t match.`),
+          right ? no('no', 'No', `They match: $${sumSq} = ${r * r}$. When the squares add up exactly, there’s a right angle.`) : ok('no', `No — $${sumSq} \\ne ${r * r}$`),
+        ]),
+        hints: ['Pythagoras only works for right-angled triangles.', 'If the two smaller squares add up to the big square, it’s right-angled.', `Compare $${sumSq}$ with $${r * r}$.`],
+        explain: right ? `$${sumSq} = ${r * r}$, so the squares fit exactly: it **is** right-angled.` : `$${sumSq} \\ne ${r * r}$, so it is **not** right-angled.`,
+      },
+    ],
+    summary: right
+      ? `$${p}^2 + ${q}^2 = ${sumSq} = ${r}^2$, so this triangle is right-angled.`
+      : `$${p}^2 + ${q}^2 = ${sumSq}$ but $${r}^2 = ${r * r}$. They aren’t equal, so this triangle has no right angle.`,
+    answer: right ? 'Yes, right-angled' : 'No, not right-angled',
+  };
+}
+
+export const pythagorasWhy: LessonDef = {
+  id: 'pythagoras-why',
+  topic: 'pythagoras',
+  title: 'Why Pythagoras works',
+  blurb: 'See it with squares and tiles: 9 + 16 = 25.',
+  objective: 'see why a² + b² = c² is true, then use it on new triangles',
+  demo: 'pythagoras-squares',
+  intro: [
+    { pose: 'explaining', text: 'Draw a square on each side of a right-angled triangle. The two smaller squares together have exactly the same area as the square on the hypotenuse.', formula: 'a^2 + b^2 = c^2' },
+  ],
+  guided: () => whyHypProblem(() => 0.5, 5, 12, true),
+  moreGuided: [() => whyMissingProblem(() => 0.5, 3, 5, true)],
+  generate: (rng, d: Difficulty) => {
+    const [x, y, z] = pick(rng, WHY_TRIPLES[d]);
+    const [p, q] = rng() < 0.5 ? [x, y] : [y, x];
+    const r = rng();
+    if (d >= 1 && r < 0.2) {
+      // A near-miss that is NOT right-angled, or a true triple.
+      return rng() < 0.5 ? whyCheckProblem(rng, Math.min(p, q), Math.max(p, q), z + 1) : whyCheckProblem(rng, Math.min(p, q), Math.max(p, q), z);
+    }
+    return r < 0.6 ? whyHypProblem(rng, p, q) : whyMissingProblem(rng, p, z);
+  },
+  inExam: false,
+  guide: {
+    rule: 'The squares on the two shorter sides together have the same area as the square on the hypotenuse: $a^2 + b^2 = c^2$',
+    explanation: 'For a $3$-$4$-$5$ triangle the squares hold $9$, $16$ and $25$ unit tiles, and $9 + 16 = 25$. It works for every right-angled triangle — even when the sides aren’t whole numbers.',
+    mistake: 'Adding the sides instead of their squares: $3 + 4 = 7$, but the hypotenuse is $5$.',
+  },
+};
+
 // ───────────────────────── 1. Identify the hypotenuse ─────────────────────────
 
 function identifyProblem(rng: Rng): Problem {
@@ -388,4 +627,4 @@ export const rectDiagonal: LessonDef = {
   },
 };
 
-export const PYTHAGORAS_LESSONS = [hypotenuseLesson, findHyp, findShort, rectDiagonal];
+export const PYTHAGORAS_LESSONS = [pythagorasWhy, hypotenuseLesson, findHyp, findShort, rectDiagonal];

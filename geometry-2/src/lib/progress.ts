@@ -1,6 +1,6 @@
 import { LESSONS, TOPICS, lessonById } from '../content';
 import type { TopicId } from '../content/types';
-import { emptyLesson, emptySkill, store, type Data, type LessonProgress, type SkillStats } from './store';
+import { emptyDemo, emptyLesson, emptySkill, store, type Data, type DemoProgress, type LessonProgress, type SkillStats } from './store';
 
 export interface Outcome {
   skill: string;
@@ -101,6 +101,16 @@ export function lessonP(d: Data, id: string): LessonProgress {
   return d.lessons[id] ?? emptyLesson();
 }
 
+/** Updates a demonstration's record (separate from questions and mastery). */
+export function updateDemo(id: string, fn: (d: DemoProgress) => void) {
+  store.update((d) => {
+    const x = d.demos[id] ?? emptyDemo();
+    fn(x);
+    x.lastAt = new Date().toISOString();
+    d.demos[id] = x;
+  });
+}
+
 export function updateLesson(id: string, fn: (l: LessonProgress) => void) {
   store.update((d) => {
     const l = d.lessons[id] ?? emptyLesson();
@@ -159,6 +169,7 @@ export const BADGES: BadgeDef[] = [
   { id: 'polygon-pro', name: 'Polygon Pro', how: 'Pass the mastery checks for interior, regular and exterior angles', icon: '⬟', test: (d) => mastered(d, 'interior-sum', 'regular-interior', 'exterior') },
   { id: 'construction-creator', name: 'Construction Creator', how: 'Construct a triangle and a perpendicular bisector', icon: '🧭', test: (d) => (d.skills['construct-triangle']?.attempted ?? 0) > 0 && (d.skills['perp-bisector']?.attempted ?? 0) > 0 },
   { id: 'symmetry-spotter', name: 'Symmetry Spotter', how: 'Pass the planes of symmetry mastery check', icon: '🧊', test: (d) => mastered(d, 'cube-symmetry') },
+  { id: 'square-seer', name: 'Square Seer', how: 'See why Pythagoras works: finish the squares demonstration', icon: '🟩', test: (d) => !!d.demos['pythagoras-squares']?.completed },
   { id: 'pythagoras-pro', name: 'Pythagoras Pro', how: 'Pass the mastery checks for finding the hypotenuse and a shorter side', icon: '📏', test: (d) => mastered(d, 'find-hyp', 'find-short') },
   { id: 'circle-detective', name: 'Circle Detective', how: 'Pass the circumference and area mastery checks', icon: '🔍', test: (d) => mastered(d, 'circumference', 'area') },
   { id: 'compound-champion', name: 'Compound Champion', how: 'Pass the compound shapes mastery check', icon: '🏆', test: (d) => mastered(d, 'compound') },

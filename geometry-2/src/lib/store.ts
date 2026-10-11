@@ -35,6 +35,24 @@ export interface Badge {
   at: string;
 }
 
+/** A visual demonstration (e.g. why Pythagoras works). Watching it never counts as mastery. */
+export interface DemoProgress {
+  started: boolean;
+  completed: boolean;
+  /** 'first' = right first time, 'help' = after a wrong try or hint, null = not yet. */
+  hypotenuse: 'first' | 'help' | null;
+  /** Worked out 9 + 16 = 25 after counting the squares. */
+  squaresUnderstood: boolean;
+  /** Chose "their areas add up to the largest square". */
+  discoveryCorrect: boolean;
+  /** Finished the 5-12-13 and missing-side examples that follow. */
+  transferDone: boolean;
+  hints: number;
+  lastAt: string | null;
+}
+
+export const emptyDemo = (): DemoProgress => ({ started: false, completed: false, hypotenuse: null, squaresUnderstood: false, discoveryCorrect: false, transferDone: false, hints: 0, lastAt: null });
+
 export interface Data {
   v: 1;
   name: string | null;
@@ -46,9 +64,10 @@ export interface Data {
   examBest: number | null; // fraction 0..1
   examsDone: number;
   lastLesson: string | null;
+  demos: Record<string, DemoProgress>;
 }
 
-export const emptyData = (): Data => ({ v: 1, name: null, welcomed: false, stars: 0, badges: [], skills: {}, lessons: {}, examBest: null, examsDone: 0, lastLesson: null });
+export const emptyData = (): Data => ({ v: 1, name: null, welcomed: false, stars: 0, badges: [], skills: {}, lessons: {}, examBest: null, examsDone: 0, lastLesson: null, demos: {} });
 
 export const emptySkill = (): SkillStats => ({ attempted: 0, firstTry: 0, afterHelp: 0, revealed: 0, wrongAttempts: 0, hints: 0, recent: [], last: null, wrong: [] });
 export const emptyLesson = (): LessonProgress => ({ opened: false, introSeen: false, guidedDone: false, practiceDone: 0, masteryBest: 0, masteryPassed: false });
@@ -68,6 +87,22 @@ export function sanitise(raw: unknown): Data {
   d.examBest = typeof r.examBest === 'number' && r.examBest >= 0 && r.examBest <= 1 ? r.examBest : null;
   d.examsDone = Math.floor(num(r.examsDone));
   d.lastLesson = str(r.lastLesson);
+  if (r.demos && typeof r.demos === 'object') {
+    for (const [k, v] of Object.entries(r.demos as Record<string, unknown>)) {
+      if (!v || typeof v !== 'object') continue;
+      const x = v as Record<string, unknown>;
+      d.demos[k] = {
+        started: bool(x.started),
+        completed: bool(x.completed),
+        hypotenuse: x.hypotenuse === 'first' || x.hypotenuse === 'help' ? x.hypotenuse : null,
+        squaresUnderstood: bool(x.squaresUnderstood),
+        discoveryCorrect: bool(x.discoveryCorrect),
+        transferDone: bool(x.transferDone),
+        hints: Math.floor(num(x.hints)),
+        lastAt: str(x.lastAt),
+      };
+    }
+  }
   if (Array.isArray(r.badges)) d.badges = r.badges.filter((b) => b && typeof b === 'object' && typeof b.id === 'string').map((b) => ({ id: b.id, at: str(b.at) ?? '' }));
   if (r.skills && typeof r.skills === 'object') {
     for (const [k, v] of Object.entries(r.skills as Record<string, unknown>)) {

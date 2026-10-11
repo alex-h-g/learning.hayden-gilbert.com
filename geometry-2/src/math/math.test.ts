@@ -244,3 +244,14 @@ describe('unit converter arithmetic (exact)', () => {
     expect(c('7', -3, 3)).toBe('0.000007');
   });
 });
+
+import { emptyDemo, sanitise } from '../lib/store';
+describe('demonstration progress storage', () => {
+  it('is sanitised and kept separate from mastery', () => {
+    const d = sanitise({ demos: { 'pythagoras-squares': { completed: true, hypotenuse: 'first', hints: 2, squaresUnderstood: 'yes', junk: 1 }, bad: 5 } });
+    expect(d.demos['pythagoras-squares']).toEqual({ ...emptyDemo(), completed: true, hypotenuse: 'first', hints: 2 });
+    expect(d.demos.bad).toBeUndefined();
+    expect(d.lessons['pythagoras-why']).toBeUndefined(); // watching never marks mastery
+    expect(sanitise({ demos: 'nope' }).demos).toEqual({});
+  });
+});

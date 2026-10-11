@@ -114,6 +114,7 @@ export function ProgressPage() {
               })}
             </tbody>
           </table>
+          {t.id === 'pythagoras' && <DemoStatus />}
         </section>
       ))}
 
@@ -138,6 +139,30 @@ export function ProgressPage() {
         <p className="small">Progress is stored only in this browser on this device. It isn’t uploaded anywhere and won’t transfer to another device or browser. Sharing a computer? Delete it so the next person starts fresh.</p>
         <ResetProgressButton />
       </section>
+    </div>
+  );
+}
+
+/** The squares demonstration is tracked separately: watching it isn't mastery. */
+function DemoStatus() {
+  const { data } = useStore();
+  const d = data.demos['pythagoras-squares'];
+  const tick = (b: boolean) => (b ? '✓' : '—');
+  return (
+    <div className="demo-status">
+      <h4>“Why Pythagoras works” demonstration</h4>
+      {!d?.started ? (
+        <p className="small muted">Not tried yet. <Link to="/lesson/pythagoras-why?stage=learn">See the squares and tiles →</Link></p>
+      ) : (
+        <ul className="small">
+          <li><span aria-hidden="true">{tick(d.completed)}</span> {d.completed ? 'Completed' : 'Started, not finished yet'}</li>
+          <li><span aria-hidden="true">{tick(!!d.hypotenuse)}</span> Spotted the hypotenuse{d.hypotenuse === 'first' ? ' first time' : d.hypotenuse === 'help' ? ' with a little help' : ''}</li>
+          <li><span aria-hidden="true">{tick(d.squaresUnderstood)}</span> Worked out 9 + 16 = 25 from the squares</li>
+          <li><span aria-hidden="true">{tick(d.discoveryCorrect)}</span> Spotted that the smaller squares add up to the biggest</li>
+          <li><span aria-hidden="true">{tick(d.transferDone)}</span> Used it on a new triangle (5, 12, 13)</li>
+          <li>Hints used: {d.hints}</li>
+        </ul>
+      )}
     </div>
   );
 }

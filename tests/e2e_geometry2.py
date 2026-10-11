@@ -63,6 +63,120 @@ def finish_by_struggling(p, max_steps=30):
         return False
     return p.locator('.summary').count() > 0
 
+def demo_walk(p, tag, reduced=False, touch=False):
+    """Walks the whole 'Why Pythagoras works' demonstration and the transfer questions."""
+    press = (lambda loc: loc.tap()) if touch else (lambda loc: loc.click())
+    btn = lambda name, exact=False: p.get_by_role('button', name=name, exact=exact)
+    nxt = lambda: press(btn('Next →'))
+    p.goto(APP + '/lesson/pythagoras-why')
+    ok(f'{tag}: demo opens with the formula', p.locator('.demo-card .big-formula').count() == 1 and 'discover' in bubble(p))
+    ok(f'{tag}: Gina starts in her explaining pose', p.locator('img[src$="gina-explaining.webp"]').count() == 1)
+    nxt()
+    ok(f'{tag}: hypotenuse question hides the letters', p.locator('.dside-pill', has_text='c =').count() == 0)
+    ok(f'{tag}: Next is locked until the hypotenuse is found', btn('Next →').is_disabled())
+    press(btn('Side 3'))
+    ok(f'{tag}: wrong side gets the right-angle hint', 'opposite' in bubble(p) and p.locator('.fb-bad').count() == 1)
+    press(btn('Side 5'))
+    ok(f'{tag}: hypotenuse found, labels a, b, c shown', p.locator('.dside-pill', has_text='c = 5').count() == 1 and p.locator('img[src$="gina-celebrating.webp"]').count() == 1)
+    nxt()
+    press(p.locator('.option', has_text='thirty-two'))
+    press(btn('Check', True))
+    ok(f'{tag}: squared misconception explained', 'digit' in p.locator('.feedback').inner_text())
+    press(p.locator('.option').nth(1)); press(btn('Check', True))
+    ok(f'{tag}: 3² shown as 9 tiles', p.locator('.sq-grid').nth(0).locator('rect').count() == 9)
+    press(btn('Show 4² →')); press(btn('Show 5² →'))
+    ok(f'{tag}: 4² = 16 tiles and 5² = 25 tiles', p.locator('.sq-grid').nth(1).locator('rect').count() == 16 and p.locator('.sq-grid').nth(2).locator('rect').count() == 25)
+    nxt()
+    cells = [p.locator(f'[data-square={x}] .dcell').count() for x in 'abc']
+    ok(f'{tag}: squares on the triangle have 9, 16, 25 cells', cells == [9, 16, 25], str(cells))
+    nxt()
+    ok(f'{tag}: sum box waits until both squares are counted', p.locator('.answer-input input').count() == 0)
+    press(btn('Blue square (side 3)'))
+    ok(f'{tag}: blue square counted 3 × 3 = 9', '3 × 3 = 9' in p.locator('.demo-counter').first.inner_text())
+    press(btn('Orange square (side 4)'))
+    ok(f'{tag}: orange square counted 4 × 4 = 16', '4 × 4 = 16' in p.locator('.demo-counter').first.inner_text())
+    p.locator('.answer-input input').fill('20'); press(btn('Check', True))
+    ok(f'{tag}: wrong total gets Gina’s nudge', 'put them together' in bubble(p))
+    p.locator('.answer-input input').fill('25'); press(btn('Check', True))
+    ok(f'{tag}: 9 + 16 = 25 accepted', p.locator('.fb-ok').count() == 1)
+    nxt()
+    neutral = p.locator('[data-square=c] .dcell.neutral').count()
+    ok(f'{tag}: green square starts as 25 empty cells', neutral == 25, str(neutral))
+    ok(f'{tag}: Next locked before the animation', btn('Next →').is_disabled())
+
+    def run_to_end():
+        if reduced:
+            for _ in range(10):
+                if p.locator('.demo-caption.done').count(): break
+                press(btn('Next step →'))
+        else:
+            p.wait_for_selector('.demo-caption.done', timeout=20000)
+
+    def tile_state():
+        return p.evaluate("""() => { const t=[...document.querySelectorAll('[data-tile]')];
+          return {n:t.length, blue:t.filter(x=>x.dataset.colour==='blue'&&x.dataset.arrived==='yes').length,
+                  orange:t.filter(x=>x.dataset.colour==='orange'&&x.dataset.arrived==='yes').length,
+                  targets:new Set(t.map(x=>x.dataset.target)).size} }""")
+    press(btn('Let’s put the squares together'))
+    mid = tile_state()
+    ok(f'{tag}: animation shows exactly 25 tiles', mid['n'] == 25, str(mid))
+    if reduced:
+        ok(f'{tag}: reduced motion uses step buttons, no timers', btn('Next step →').count() == 1)
+    run_to_end()
+    st = tile_state()
+    ok(f'{tag}: green square ends with 9 blue + 16 orange, every cell used once', st == {'n': 25, 'blue': 9, 'orange': 16, 'targets': 25}, str(st))
+    ok(f'{tag}: result shows 9 + 16 = 25 and 3² + 4² = 5²', p.locator('.demo-result .katex').count() >= 2 and 'twenty-five' in bubble(p))
+    if not reduced:
+        press(btn('Replay the animation'))
+        ok(f'{tag}: replay never duplicates tiles', tile_state()['n'] == 25)
+        run_to_end()
+        ok(f'{tag}: replay ends in the same correct state', tile_state() == st)
+    press(btn('Reset the demonstration to the start'))
+    ok(f'{tag}: reset clears the tiles', tile_state()['n'] == 0 and btn('Let’s put the squares together').count() == 1)
+    press(btn('Let’s put the squares together')); run_to_end()
+    p.locator('.demo-toggle input').check()
+    press(btn('Green square (c²)'))
+    p.wait_for_function("document.querySelectorAll('.dcount').length === 25", timeout=15000)
+    ok(f'{tag}: counting mode numbers all 25 cells', p.locator('.dcount').count() == 25 and '25' in p.locator('.demo-counter').inner_text())
+    on_top = p.evaluate("() => { const l=document.querySelector('.dcount-layer'); const t=[...document.querySelectorAll('[data-tile]')].pop(); return !!l && !!t && (t.compareDocumentPosition(l) & Node.DOCUMENT_POSITION_FOLLOWING) > 0; }")
+    ok(f'{tag}: count numbers are drawn above the tiles', on_top)
+    ok(f'{tag}: no horizontal scroll on the demo', no_hscroll(p))
+    p.screenshot(path=f'{SHOTS}/{tag}-demo-done.png', full_page=True)
+    nxt()
+    press(p.locator('.option', has_text='always equal')); press(btn('Check', True))
+    ok(f'{tag}: wrong discovery gets the 9 and 16 hint', 'nine blue' in bubble(p))
+    press(p.locator('.option', has_text='add up')); press(btn('Check', True))
+    ok(f'{tag}: discovery accepted, formula shown', p.locator('.big-formula').count() == 1)
+    nxt()
+    for _ in range(3): press(btn('Next line →'))
+    ok(f'{tag}: formula steps to 25 = 25', p.locator('.formula-steps li').count() == 4 and 'every' in bubble(p))
+    press(btn('Now try a new triangle →'))
+    ok(f'{tag}: transfer question is 5-12-13', '$5$' not in p.locator('.q-text').inner_text() and '5' in p.locator('.q-text').inner_text() and '12' in p.locator('.q-text').inner_text() and 'new triangle' in p.locator('.stage-note').inner_text())
+    press(p.locator('.option').filter(has_text='c^2').filter(has_text='5^2 + 12^2').first) if False else None
+    for i in range(p.locator('.option').count()):
+        press(p.locator('.option').nth(i)); press(btn('Check', True))
+        if p.locator('.question-card .step-actions .btn-lg').count(): break
+    press(p.locator('.question-card .step-actions .btn-lg'))
+    for v in [25, 144, 169, 13]:
+        p.locator('.answer-input input').fill(str(v)); press(btn('Check', True)); press(p.locator('.question-card .step-actions .btn-lg'))
+    ok(f'{tag}: second example is the missing side (3, 5 → b)', 'hypotenuse' in p.locator('.q-text').inner_text() and 'shorter side' in p.locator('.q-text').inner_text())
+    for _ in range(2):
+        for i in range(p.locator('.option').count()):
+            press(p.locator('.option').nth(i)); press(btn('Check', True))
+            if p.locator('.question-card .step-actions .btn-lg').count(): break
+        press(p.locator('.question-card .step-actions .btn-lg'))
+    p.locator('.answer-input input').fill('16'); press(btn('Check', True)); press(p.locator('.question-card .step-actions .btn-lg'))
+    p.locator('.answer-input input').fill('4'); press(btn('Check', True))
+    ok(f'{tag}: b = 4 connects back to the 3-4-5 triangle', 'same' in bubble(p))
+    press(p.locator('.question-card .step-actions .btn-lg'))
+    ok(f'{tag}: practice questions follow', 'Practice: question 1 of 3' in p.content())
+    d = p.evaluate("JSON.parse(localStorage.getItem('geometry-2:history:v1'))")
+    demo = d['demos']['pythagoras-squares']
+    ok(f'{tag}: demo progress recorded', demo['completed'] and demo['hypotenuse'] == 'help' and demo['squaresUnderstood'] and demo['discoveryCorrect'] and demo['transferDone'] and demo['hints'] >= 4, str(demo))
+    ok(f'{tag}: watching the demo is not mastery', not d['lessons']['pythagoras-why']['masteryPassed'] and 'pythagoras-why' not in d['skills'])
+    ok(f'{tag}: Square Seer badge earned', any(b['id'] == 'square-seer' for b in d['badges']))
+
+
 with sync_playwright() as pw:
     browser = pw.chromium.launch(executable_path=CHROME)
     ctx = browser.new_context(viewport={'width': 1366, 'height': 900})
@@ -289,6 +403,22 @@ with sync_playwright() as pw:
         next_step(p)
     ok('mixed exam covers many lessons', len(titles) >= 6, str(titles))
     ok('exam results page', 'results' in p.locator('h1').inner_text())
+
+    # ── Why Pythagoras works: the squares demonstration ──
+    demo_walk(p, 'desktop')
+    p.goto(APP + '/progress')
+    ok('progress page shows the demonstration record', 'Why Pythagoras works' in p.content() and 'Worked out 9 + 16 = 25' in p.content())
+    p.goto(APP + '/lesson/pythagoras-why?stage=learn')
+    ok('“see why it works again” link opens the demo', p.locator('.demo-card').count() == 1)
+    p.goto(APP + '/lesson/find-hyp')
+    p.get_by_role('button', name='Worked example').click()
+    ok('existing Pythagoras lessons still open', 'hypotenuse' in p.locator('.q-text').inner_text())
+    rctx = browser.new_context(viewport={'width': 390, 'height': 844}, reduced_motion='reduce', has_touch=True, is_mobile=True)
+    rp = rctx.new_page()
+    rp.on('pageerror', lambda e: errors.append(str(e)))
+    rp.goto(APP + '/'); rp.get_by_role('button', name='Continue without a name').tap()
+    demo_walk(rp, 'phone-reduced-motion', reduced=True, touch=True)
+    rctx.close()
 
     # ── Layouts ──
     sizes = {'phone': (390, 844), 'phone-landscape': (844, 390), 'ipad': (820, 1180), 'ipad-landscape': (1180, 820), 'desktop': (1366, 900)}
