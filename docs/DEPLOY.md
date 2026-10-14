@@ -1,3 +1,14 @@
+# Times Tables with Mandy — deploy (added October 2026)
+
+| Path (in `public_html/`) | Status |
+|---|---|
+| `multiplication/times-tables/` | **New.** `index.html`, `css/times-tables.css`, `js/tt-core.js`, `js/tt-store.js`, `js/tt-speech.js`, `js/tt-app.js`. |
+| `multiplication/index.html` | **Replaces.** `multiplication.css?v=3`, `start.js?v=3`. |
+| `multiplication/js/start.js` | **Replaces.** Adds the "Times Tables with Mandy" card to Mandy's hub and times-table page. Everything else unchanged. |
+| `multiplication/css/multiplication.css` | **Replaces.** Adds `.tt-promo` styles only. |
+
+Steps: upload `mandy-times-tables-deploy.zip` to `public_html/` and Extract, overwriting; check `/multiplication/times-tables/` and `/multiplication/`; flush SiteGround cache. No `.htaccess`, homepage or other app changes. New storage key `mandy-times-tables:v1`; existing learners' progress is untouched.
+
 # iBegin Piano card on the homepage (added October 2026)
 
 Upload `index.html` (replaces) and `images/ibegin-patty-piano.webp` (new) into `public_html/`, then flush the SiteGround cache. `styles.css` and `home.js` are unchanged.

@@ -20,6 +20,7 @@ public_html/          ← exactly what goes on the server (deploy the CONTENTS i
   addition/           Andy the Adder      (6 levels)   green  #178246
   subtraction/        Susy the Subtractor (14 levels)  purple #7c4fd6
   multiplication/     Mandy the Multiplier (7 levels + times-table check/practice) pink #c81e6c
+    times-tables/     Times Tables with Mandy: Chant Along, Flashcards, Game, multi-student (standalone, not on the shell)
   division/           Danny the Divisor   (10 levels)  blue   #2563eb
 basic-geometry/       Basic Geometry SOURCE (Vite/React/TS, Vitest tests, own README)
 geometry-2/           Geometry 2 with Geometry Gina SOURCE (Vite/React/TS, own README); built output in public_html/geometry-2/
@@ -78,7 +79,7 @@ All four characters share nine poses: `waving, thinking, pointing, curious, enco
 
 ## localStorage keys (don't rename; learners would lose progress)
 
-`arithmetic:profile:v1` (shared name/sound/welcomed) · `arith-addition:progress:v1` · `subtraction-susy:progress:v1` (kept from the first Susy release) · `arith-multiplication:progress:v1` (`extra.diagnostic`, `extra.facts`) · `arith-division:progress:v1`. Stored data is sanitised on load; malformed data must never crash a page.
+`mandy-times-tables:v1` (Times Tables: students + per-student fact history) · `arithmetic:profile:v1` (shared name/sound/welcomed) · `arith-addition:progress:v1` · `subtraction-susy:progress:v1` (kept from the first Susy release) · `arith-multiplication:progress:v1` (`extra.diagnostic`, `extra.facts`) · `arith-division:progress:v1`. Stored data is sanitised on load; malformed data must never crash a page.
 
 ## Caching / versioning
 
@@ -94,6 +95,18 @@ python3 tests/e2e.py http://127.0.0.1:8765 /tmp/shots
 ```
 
 `e2e.py` covers all four apps, launch page, homepage, persistence/reset/legacy migration, and layouts at phone, phone-landscape, iPad portrait/landscape, iPad Pro and desktop. In the cloud container Chromium is at `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`. Measure layout boxes in a single `page.evaluate`, because the site uses smooth scrolling and separate calls give false overlaps.
+
+## Times Tables with Mandy (`/multiplication/times-tables/`) — built October 2026
+
+Separate from Mandy's long-multiplication course on purpose (Alex: "the long-form is different from just the basic times tables"). Keep both, and keep Mandy's old times-table check/keypad drills in `/multiplication/`; its hub links here via `ttPromo()` in `multiplication/js/start.js`.
+
+- Plain JS, no shell. `js/tt-core.js` (pure, UMD: tables, chant lines, plausible distractors, rounds, revision rule), `js/tt-store.js` (UMD: profiles + history), `js/tt-speech.js` (Web Speech, **Chant Along only**), `js/tt-app.js` (screens). Spec: `docs/spec-3-mandy-times-tables.md`.
+- **Multiple students** live only here (Alex chose "times tables only"): profiles by internal id, same name allowed after an "Is this you?" prompt. The Gang's single shared name is untouched; it's only read to prefill the first name box.
+- Facts are **ordered** (7×6 ≠ 6×7) because the Game's two limits are independent.
+- Distractors: tier 1 = one factor ±1; tier 2 = ±2 or a nearby real product; fallback = answer ±k. Tested exhaustively for 1×1–10×10.
+- Revision rule (in `tt-core.js` header): flagged if last attempt needed another try, or recurring (≥2 misses and <80% first-time) until 3 separate first-time rounds; "strong" = 3 separate rounds in a row first time.
+- Only Chant Along speaks. Flashcards and the Game must never call speech (e2e checks nothing is spoken there).
+- Tests: `node tests/times-tables.test.js` and `python3 tests/e2e_times_tables.py http://127.0.0.1:8765 /tmp/ttshots` (mocks speechSynthesis).
 
 ## Deploy
 

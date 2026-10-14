@@ -15,3 +15,6 @@
 .table-chip.strong { border-color: #b9e3c8; background: #f0fbf4; }
 .table-chip:active { transform: translateY(1px); }
 @media (max-width: 640px) { .mult-board .row-note { font-size: .72rem; padding-left: 4px; } }
+.tt-promo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 16px; text-decoration: none; color: var(--ink); border: 2px solid var(--accent-100); background: linear-gradient(160deg, #fff, var(--accent-50)); }
+.tt-promo-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 260px; }
+.tt-promo-text strong { color: var(--accent-700); font-size: 1.15rem; }

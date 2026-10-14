@@ -11,6 +11,7 @@ Free, ad-free learning games. Static HTML/CSS/JS hosted on SiteGround; no build 
 | `public_html/addition/` | Andy the Adder: 6 levels, carrying. |
 | `public_html/subtraction/` | Susy the Subtractor: 14 levels, borrowing across zeros. |
 | `public_html/multiplication/` | Mandy the Multiplier: times-table check & practice, 7 levels of long multiplication. |
+| `public_html/multiplication/times-tables/` | Times Tables with Mandy: Chant Along (spoken), Flashcards, multiple-choice Game with revision, separate student profiles. |
 | `public_html/division/` | Danny the Divisor: 10 levels, long division, remainders, decimals. |
 | `public_html/basic-geometry/` | **Basic Geometry** — built output (do not edit by hand). Pick a Pair, calculator, formula reference, progress, cheat-sheet PDF, `.htaccess`. |
 | `public_html/favicon.svg` | Site favicon. |
@@ -43,6 +44,7 @@ Upload `public_html/basic-geometry/` (including the hidden `.htaccess`) to SiteG
 for t in tests/*.test.js; do node "$t"; done
 (cd public_html && python3 -m http.server 8765 &)
 python3 tests/e2e.py http://127.0.0.1:8765 /tmp
+python3 tests/e2e_times_tables.py http://127.0.0.1:8765 /tmp
 ```
 
 ## Deploy

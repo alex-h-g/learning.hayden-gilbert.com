@@ -77,6 +77,10 @@
       '<button class="btn btn-secondary" data-action="diag-again">' + (diag ? 'Do the quick check again' : 'Take the quick check') + '</button></div></div>';
   }
 
+  function ttPromo() {
+    return '<a class="card tt-promo" href="/multiplication/times-tables/"><span class="tt-promo-text"><strong>Times Tables with Mandy</strong><span class="muted small">Chant along, flashcards and a game that remembers your tricky ones, from 1 × 1 to 10 × 10.</span></span><span class="btn btn-accent">Let’s go →</span></a>';
+  }
+
   window.ArithShell.start({
     id: 'multiplication',
     title: 'Multiplication with Mandy',
@@ -94,11 +98,11 @@
       },
       tables: function (sh) {
         return '<section class="screen tables-page"><div class="crumb"><button class="btn btn-ghost" data-action="hub">← All levels</button></div>' +
-          '<h1>Times tables with Mandy</h1><div class="tutor-card plain">' + sh.charImg('encouraging', 'char-md') + '<div class="bubble bubble-left">' + sh.paras('Times tables make long multiplication much easier. Which one shall we practise? I’ll give you ten questions, and we’ll try any tricky ones again at the end.') + '</div></div>' +
+          '<h1>Times tables with Mandy</h1>' + ttPromo() + '<div class="tutor-card plain">' + sh.charImg('encouraging', 'char-md') + '<div class="bubble bubble-left">' + sh.paras('Times tables make long multiplication much easier. Which one shall we practise? I’ll give you ten questions, and we’ll try any tricky ones again at the end.') + '</div></div>' +
           tablesHTML(sh) + '</section>';
       }
     },
-    hubExtras: function (sh) { return tablesHTML(sh); },
+    hubExtras: function (sh) { return ttPromo() + tablesHTML(sh); },
     progressExtras: function (sh) {
       var rows = '';
       for (var n = 1; n <= 9; n++) { var sc = tableScore(sh, n); rows += '<li class="badge-item"><span class="badge-medal" aria-hidden="true">' + n + '×</span><span>' + n + ' times table<br><span class="muted small">' + (sc ? Math.round(sc.rate * 100) + '% right (' + sc.seen + ' tries)' : 'not practised yet') + '</span></span></li>'; }
