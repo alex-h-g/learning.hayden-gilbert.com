@@ -48,6 +48,24 @@
     if (note) { note.textContent = '✓ ' + gangParts.join(' · '); note.hidden = false; }
   }
 
+  // ── Times Tables with Mandy (several children may share a device, so no names here) ──
+  var tt = read('mandy-times-tables:v1');
+  if (tt && typeof tt === 'object' && tt.v === 1 && tt.progress && typeof tt.progress === 'object' && Array.isArray(tt.students)) {
+    var ttFacts = 0, ttKids = 0;
+    tt.students.forEach(function (st) {
+      var pr = st && typeof st.id === 'string' && tt.progress[st.id];
+      var f = pr && pr.facts && typeof pr.facts === 'object' ? pr.facts : null;
+      var n = f ? Object.keys(f).filter(function (k) { return f[k] && typeof f[k].seen === 'number' && f[k].seen > 0; }).length : 0;
+      if (n) { ttFacts += n; ttKids += 1; }
+    });
+    if (ttFacts) {
+      summaries.push('In Times Tables with Mandy, ' + (ttKids > 1 ? plural(ttKids, 'student') + ' on this device have' : 'you’ve') + ' practised ' + plural(ttFacts, 'times-table fact') + '.');
+      buttons.push(link('/multiplication/times-tables/', 'Carry on with times tables', 'btn-primary'));
+      var ttNote = document.getElementById('tt-progress');
+      if (ttNote) { ttNote.textContent = '✓ Played in this browser — ' + plural(ttFacts, 'fact') + ' practised.'; ttNote.hidden = false; }
+    }
+  }
+
   // ── Basic Geometry ──
   var geo = read('basic-geometry:history:v1');
   if (geo && typeof geo === 'object' && geo.stats && typeof geo.stats === 'object') {

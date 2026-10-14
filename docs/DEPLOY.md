@@ -7,7 +7,10 @@
 | `multiplication/js/start.js` | **Replaces.** Adds the "Times Tables with Mandy" card to Mandy's hub and times-table page. Everything else unchanged. |
 | `multiplication/css/multiplication.css` | **Replaces.** Adds `.tt-promo` styles only. |
 
-Steps: upload `mandy-times-tables-deploy.zip` to `public_html/` and Extract, overwriting; check `/multiplication/times-tables/` and `/multiplication/`; flush SiteGround cache. No `.htaccess`, homepage or other app changes. New storage key `mandy-times-tables:v1`; existing learners' progress is untouched.
+| `index.html` | **Replaces.** Adds the Times Tables with Mandy card under Math games, a "Times Tables" button on the Gang card, a footer link, privacy wording; `home.js?v=4`. Nothing removed. |
+| `home.js` | **Replaces.** "Welcome back" also summarises Times Tables (counts only, never children's names). |
+
+Steps: upload `mandy-times-tables-deploy.zip` to `public_html/` and Extract, overwriting; check `/multiplication/times-tables/`, `/multiplication/` and the homepage; flush SiteGround cache. No `.htaccess` or other app changes; `styles.css` unchanged. New storage key `mandy-times-tables:v1`; existing learners' progress is untouched.
 
 # iBegin Piano card on the homepage (added October 2026)
 
